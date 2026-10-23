@@ -1,0 +1,2582 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>SentioLab — typography as motion</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@700&family=DM+Serif+Display:ital@0;1&family=Syne:wght@800&family=Bebas+Neue&family=Fragment+Mono:ital@0;1&family=Instrument+Serif:ital@0;1&family=Unbounded:wght@900&family=Fraunces:ital,wght@1,900&family=Space+Mono:wght@700&family=Playfair+Display:ital,wght@0,900;1,900&family=Cormorant+Garamond:ital,wght@0,700;1,700&family=Bodoni+Moda:ital,opsz,wght@0,6..96,900;1,6..96,900&family=Oswald:wght@700&family=Cinzel:wght@900&family=Big+Shoulders+Display:wght@900&family=Josefin+Sans:ital,wght@0,700;1,700&family=Raleway:ital,wght@0,900;1,900&family=Eater&family=Metal+Mania&family=Nosifer&family=Pirata+One&family=New+Rocker&family=Pirata+One&family=Metal+Mania&family=Rozha+One&family=Yeseva+One&family=Vidaloka&family=Rufina:wght@700&family=Libre+Bodoni:ital,wght@0,700;1,700&family=Abril+Fatface&family=MedievalSharp&family=UnifrakturMaguntia&family=Germania+One&family=Almendra+Display&family=Grenze+Gotisch:wght@900&family=Barlow+Condensed:wght@900&family=Righteous&family=Cormorant+Infant:ital,wght@0,700;1,700&family=Poiret+One&family=Creepster&family=Sora:wght@700&family=JetBrains+Mono:wght@700&family=Cutive+Mono&family=Special+Elite&family=Rubik+Glitch&family=Press+Start+2P&family=IBM+Plex+Mono:wght@400;700&family=IBM+Plex+Sans:wght@700&family=IBM+Plex+Serif:wght@700&family=Share+Tech+Mono&family=VT323&family=Courier+Prime:wght@700&display=swap" rel="stylesheet">
+<style>
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{display:flex;height:100vh;background:#000;overflow:hidden;font-family:'Helvetica Neue',Helvetica,Arial,sans-serif}
+  #canvasWrap{flex:1;display:flex;align-items:center;justify-content:center;overflow:hidden;background:#000;position:relative}
+  canvas{display:block}
+  #canvasWrap{touch-action:none}
+  video#camVid{display:none}
+  aside{width:240px;min-width:240px;background:#0c0c0c;border-left:1px solid #1c1c1c;display:none;flex-direction:column;font-size:11px;position:relative;z-index:10;height:100vh;overflow:hidden}
+  aside.visible{display:flex}
+  .title-bar{padding:12px 13px 11px;border-bottom:1px solid #1c1c1c;display:flex;justify-content:space-between;align-items:center;flex-shrink:0}
+  .title-bar .logo{font-size:10px;letter-spacing:3.5px;color:#e8ff00;text-transform:uppercase;font-weight:600}
+  .play-btn{width:26px;height:26px;border-radius:50%;background:#e8ff00;border:none;cursor:pointer;font-size:11px;color:#000;display:flex;align-items:center;justify-content:center;line-height:1;flex-shrink:0;transition:transform .1s}
+  .play-btn:active{transform:scale(.9)}
+  .sec-head{display:flex;justify-content:space-between;align-items:center;padding:8px 13px;cursor:pointer;background:#111;border-bottom:1px solid #1a1a1a;user-select:none;transition:background .15s}
+  .sec-head:hover{background:#161616}
+  .sec-head .sec-lbl{font-size:9px;color:#888;letter-spacing:2.5px;text-transform:uppercase}
+  .sec-head .arrow{font-size:8px;color:#555;transition:transform .2s}
+  .sec-head.closed .arrow{transform:rotate(-90deg)}
+  .sec-body{padding:9px 13px 11px;border-bottom:1px solid #1a1a1a}
+  .row{display:flex;align-items:center;gap:6px;margin-bottom:8px;min-height:22px}
+  .row:last-child{margin-bottom:0}
+  .lbl{font-size:10px;color:#666;min-width:82px;white-space:nowrap}
+  .val{font-size:10px;color:#e8ff00;min-width:32px;text-align:right;font-variant-numeric:tabular-nums;font-family:monospace}
+  input[type=range]{flex:1;-webkit-appearance:none;height:2px;background:#252525;outline:none;cursor:pointer;border-radius:1px}
+  input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:10px;height:10px;border-radius:50%;background:#e8ff00;cursor:pointer;transition:transform .1s}
+  input[type=range]::-webkit-slider-thumb:active{transform:scale(1.3)}
+  input[type=checkbox]{accent-color:#e8ff00;width:13px;height:13px;cursor:pointer;flex-shrink:0}
+  select{background:#0c0c0c;color:#bbb;border:1px solid #222;font-size:10px;padding:3px 6px;cursor:pointer;outline:none;flex:1;border-radius:0}
+  select option{background:#111}
+  .swatch{flex:1;height:18px;cursor:pointer;border-radius:2px;border:1px solid #2a2a2a;transition:border-color .15s}
+  .swatch:hover{border-color:#444}
+  .hex{font-size:9px;color:#444;font-family:monospace;min-width:52px}
+  input[type=text]{flex:1;background:#000;border:1px solid #1c1c1c;color:#e8ff00;font-size:11px;padding:3px 7px;outline:none;font-family:monospace;letter-spacing:1px;text-transform:uppercase}
+  input[type=text]:focus{border-color:#333}
+  .action-btn{flex:1;background:#000;border:1px solid #1c1c1c;color:#777;font-size:9px;padding:5px 0;cursor:pointer;letter-spacing:2px;text-transform:uppercase;transition:color .15s,border-color .15s}
+  .action-btn:hover{color:#e8ff00;border-color:#333}
+  .action-btn.active{color:#e8ff00;border-color:#e8ff00}
+  #panelScroll{flex:1;overflow-y:auto;overflow-x:hidden} #panelScroll::-webkit-scrollbar{width:3px}
+  #panelScroll::-webkit-scrollbar-thumb{background:#1e1e1e}
+  .mode-tabs{display:flex;gap:4px;margin-bottom:9px}
+  .mode-tab{flex:1;background:#000;border:1px solid #1c1c1c;color:#555;font-size:9px;padding:4px 0;cursor:pointer;letter-spacing:1.5px;text-transform:uppercase;text-align:center;transition:all .15s}
+  .mode-tab:hover{color:#999;border-color:#333}
+  .mode-tab.on{color:#e8ff00;border-color:#e8ff00}
+  .cam-status{font-size:9px;margin-top:5px;color:#555;letter-spacing:1px}
+  .cam-status.ok{color:#7dff7d}
+  .cam-status.err{color:#ff6060}
+  .drop-zone{border:1px dashed #2a2a2a;padding:9px 6px;text-align:center;font-size:9px;color:#555;cursor:pointer;letter-spacing:1px;text-transform:uppercase;transition:border-color .15s,color .15s;margin-bottom:6px}
+  .drop-zone:hover,.drop-zone.over{border-color:#e8ff00;color:#e8ff00}
+  .drop-zone.has-img{border-style:solid;border-color:#444;color:#888}
+  .sep{height:1px;background:#1a1a1a;margin:6px 0}
+</style>
+</head>
+<body>
+
+<div id="canvasWrap"><canvas id="cv"></canvas></div>
+<video id="camVid" autoplay playsinline muted></video>
+<canvas id="offCv" style="display:none"></canvas>
+<input type="file" id="fileIn" accept="image/*" style="display:none">
+<input type="file" id="videoIn" accept="video/*" style="display:none">
+<video id="srcVid" style="display:none" playsinline muted loop></video>
+
+<aside>
+  <div class="title-bar">
+    <span class="logo">SentioLab</span>
+    <button class="play-btn" id="outBtn" title="Output Window" onclick="openOutputWindow()" style="font-size:13px">⎋</button>
+    <button class="play-btn" id="playBtn" title="Play/Pause">⏸</button>
+  </div>
+
+  <div id="panelScroll">
+
+  <!-- INPUT -->
+  <div class="sec-head" id="hInput" onclick="toggleSec('bInput','hInput')">
+    <span class="sec-lbl">Input</span><span class="arrow">▼</span>
+  </div>
+  <div class="sec-body" id="bInput">
+    <div class="mode-tabs">
+      <div class="mode-tab on" id="tab-animation" onclick="setMode('animation')">Anim</div>
+      <div class="mode-tab"    id="tab-image"     onclick="setMode('image')">Image</div>
+      <div class="mode-tab"    id="tab-video"     onclick="setMode('video')">Video</div>
+      <div class="mode-tab"    id="tab-camera"    onclick="setMode('camera')">Cam</div>
+    </div>
+
+    <!-- Image upload -->
+    <div id="imageControls" style="display:none">
+      <div class="drop-zone" id="dropZone" onclick="document.getElementById('fileIn').click()">
+        Drop image or click to upload
+      </div>
+    </div>
+
+    <!-- Video upload -->
+    <div id="videoControls" style="display:none">
+      <div class="drop-zone" id="dropZoneVid" onclick="document.getElementById('videoIn').click()">
+        Drop video or click to upload<br><span style="color:#333;font-size:8px">max 15 sec · mp4 / webm / mov</span>
+      </div>
+      <div id="vidPlayerControls" style="display:none">
+        <div class="row">
+          <button class="action-btn" id="vidPlayBtn" onclick="toggleVidPlay()">▶ Play</button>
+          <button class="action-btn" onclick="restartVid()">↺ Restart</button>
+        </div>
+        <div class="row">
+          <span class="lbl">Seek</span>
+          <input type="range" id="vidSeek" min="0" max="100" step="0.1" value="0"
+            onmousedown="vidSeeking=true"
+            oninput="seekVid(+this.value)"
+            onmouseup="vidSeeking=false">
+          <span class="val" id="vidTime">0.0s</span>
+        </div>
+        <div class="row" style="font-size:9px;color:#555" id="vidDurRow"></div>
+      </div>
+    </div>
+
+    <!-- Camera -->
+    <div id="cameraControls" style="display:none">
+      <div class="row">
+        <button class="action-btn" id="camBtn" onclick="toggleCamera()">Start Camera</button>
+      </div>
+      <div class="cam-status" id="camStatus">Camera off</div>
+    </div>
+
+    <!-- Pixel controls — image & camera -->
+    <div id="pixelControls" style="display:none">
+      <div class="sep"></div>
+      <div class="row">
+        <span class="lbl">Min Level</span>
+        <input type="range" min="0" max="254" step="1" value="0"
+          oninput="P.minLevel=+this.value;document.getElementById('minv').textContent=this.value">
+        <span class="val" id="minv">0</span>
+      </div>
+      <div class="row">
+        <span class="lbl">Max Level</span>
+        <input type="range" min="1" max="255" step="1" value="255"
+          oninput="P.maxLevel=+this.value;document.getElementById('maxv').textContent=this.value">
+        <span class="val" id="maxv">255</span>
+      </div>
+      <div class="row" id="mirrorRow">
+        <span class="lbl">Mirror</span>
+        <input type="checkbox" id="mirrorCk" checked onchange="P.mirror=this.checked">
+      </div>
+    </div>
+
+    <!-- Animation controls -->
+    <div id="animControls">
+      <div class="sep"></div>
+      <div class="row">
+        <span class="lbl">Width</span>
+        <input type="range" min="200" max="4096" step="8" value="1080"
+          oninput="P.W=+this.value;resize();document.getElementById('wv').textContent=this.value">
+        <span class="val" id="wv">1080</span>
+      </div>
+      <div class="row">
+        <span class="lbl">Height</span>
+        <input type="range" min="200" max="4096" step="8" value="1080"
+          oninput="P.H=+this.value;resize();document.getElementById('hv').textContent=this.value">
+        <span class="val" id="hv">1080</span>
+      </div>
+      <div class="row">
+        <span class="lbl">Speed</span>
+        <input type="range" min="0.05" max="5" step="0.05" value="1"
+          oninput="P.speed=+this.value;document.getElementById('spv').textContent=(+this.value).toFixed(2)">
+        <span class="val" id="spv">1.00</span>
+      </div>
+      <div class="row">
+        <span class="lbl">Time</span>
+        <input type="range" id="timeSl" min="0" max="800" step="0.5" value="0"
+          onmousedown="manualT=true"
+          oninput="P.time=+this.value;document.getElementById('tv').textContent=(+this.value).toFixed(1)"
+          onmouseup="manualT=false">
+        <span class="val" id="tv">0.0</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- OUTPUT -->
+  <div class="sec-head" id="hOutput" onclick="toggleSec('bOutput','hOutput')">
+    <span class="sec-lbl">Output</span><span class="arrow">▼</span>
+  </div>
+  <div class="sec-body" id="bOutput">
+    <div class="row">
+      <button class="action-btn" onclick="applyRandom()">⟳ Random</button>
+    </div>
+    <div class="row">
+      <span class="lbl">Direction</span>
+      <select id="dirSel" onchange="P.direction=this.value">
+        <option value="vertical">vertical</option>
+        <option value="horizontal">horizontal</option>
+      </select>
+    </div>
+    <div class="row">
+      <span class="lbl">Rows</span>
+      <input type="range" min="1" max="120" step="1" value="30" id="rowSl"
+        oninput="P.rows=+this.value;document.getElementById('rowv').textContent=this.value">
+      <span class="val" id="rowv">30</span>
+    </div>
+    <div id="animOutputControls">
+      <div class="row">
+        <span class="lbl">Row Offset</span>
+        <input type="range" min="0" max="100" step="1" value="20" id="roSl"
+          oninput="P.rowOffset=+this.value;document.getElementById('rov').textContent=this.value">
+        <span class="val" id="rov">20</span>
+      </div>
+      <div class="row">
+        <span class="lbl">Columns</span>
+        <input type="range" min="1" max="8" step="1" value="2" id="colSl"
+          oninput="P.cols=+this.value;document.getElementById('colv').textContent=this.value">
+        <span class="val" id="colv">2</span>
+      </div>
+      <div class="row">
+        <span class="lbl">Col Offset</span>
+        <input type="range" min="0" max="800" step="1" value="0" id="coSl"
+          oninput="P.colOffset=+this.value;document.getElementById('cov').textContent=this.value">
+        <span class="val" id="cov">0</span>
+      </div>
+      <div class="row">
+        <span class="lbl">Ease</span>
+        <input type="range" min="1" max="8" step="0.1" value="1.7" id="easeSl"
+          oninput="P.ease=+this.value;document.getElementById('easev').textContent=(+this.value).toFixed(1)">
+        <span class="val" id="easev">1.7</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- COLOR -->
+  <div class="sec-head" id="hColor" onclick="toggleSec('bColor','hColor')">
+    <span class="sec-lbl">Color</span><span class="arrow">▼</span>
+  </div>
+  <div class="sec-body" id="bColor">
+    <div class="row">
+      <span class="lbl">BG</span>
+      <div class="swatch" id="bgSw" style="background:#000000" onclick="document.getElementById('bgPick').click()"></div>
+      <input type="color" id="bgPick" value="#000000" style="display:none"
+        oninput="P.bg=this.value;document.getElementById('bgSw').style.background=this.value;document.getElementById('bgHex').textContent=this.value;rebuildTextures()">
+      <span class="hex" id="bgHex">#000000</span>
+    </div>
+    <div class="row">
+      <span class="lbl">Difference</span>
+      <input type="checkbox" id="diffCk" checked onchange="P.difference=this.checked">
+    </div>
+    <div id="colorRows"></div>
+  </div>
+
+  <!-- CONTENT -->
+  <div class="sec-head" id="hContent" onclick="toggleSec('bContent','hContent')">
+    <span class="sec-lbl">Content</span><span class="arrow">▼</span>
+  </div>
+  <div class="sec-body" id="bContent">
+    <!-- Content type tabs -->
+    <div class="mode-tabs" style="margin-bottom:9px">
+      <div class="mode-tab on" id="ctab-words" onclick="setContentType('words')">Words</div>
+      <div class="mode-tab"   id="ctab-ascii" onclick="setContentType('ascii')">ASCII</div>
+    </div>
+
+    <!-- Words panel -->
+    <div id="wordsPanel">
+      <div class="row" style="margin-bottom:6px">
+        <span class="lbl">Tipografía</span>
+        <select id="wordFontSel" onchange="setWordFont(this.value)" style="flex:1">
+          <optgroup label="Serif">
+            <option value="'Cinzel',serif">Cinzel</option>
+            <option value="'Playfair Display',serif">Playfair Display</option>
+            <option value="'Bodoni Moda',serif">Bodoni Moda</option>
+            <option value="'Cormorant Garamond',serif">Cormorant Garamond</option>
+            <option value="'Cormorant Infant',serif">Cormorant Infant</option>
+            <option value="'Rozha One',serif">Rozha One</option>
+            <option value="'Abril Fatface',cursive">Abril Fatface</option>
+            <option value="'Yeseva One',cursive">Yeseva One</option>
+            <option value="'Libre Bodoni',serif">Libre Bodoni</option>
+            <option value="'Vidaloka',serif">Vidaloka</option>
+            <option value="'Rufina',serif">Rufina</option>
+            <option value="'DM Serif Display',serif">DM Serif Display</option>
+            <option value="'Instrument Serif',serif">Instrument Serif</option>
+            <option value="'Fraunces',serif">Fraunces</option>
+          </optgroup>
+          <optgroup label="Sans-serif">
+            <option value="'Arial Black',Impact,sans-serif" selected>Arial Black</option>
+            <option value="'Big Shoulders Display',sans-serif">Big Shoulders Display</option>
+            <option value="'Barlow Condensed',sans-serif">Barlow Condensed</option>
+            <option value="'Oswald',sans-serif">Oswald</option>
+            <option value="'Bebas Neue',sans-serif">Bebas Neue</option>
+            <option value="'Space Grotesk',sans-serif">Space Grotesk</option>
+            <option value="'Syne',sans-serif">Syne</option>
+            <option value="'Unbounded',sans-serif">Unbounded</option>
+            <option value="'Raleway',sans-serif">Raleway</option>
+            <option value="'Josefin Sans',sans-serif">Josefin Sans</option>
+            <option value="'Poiret One',cursive">Poiret One</option>
+            <option value="'Righteous',cursive">Righteous</option>
+            <option value="'Sora',sans-serif">Sora</option>
+            <option value="'Special Elite',cursive">Special Elite</option>
+            <option value="'Rubik Glitch',cursive">Rubik Glitch</option>
+          </optgroup>
+          <optgroup label="Display">
+            <option value="'Metal Mania',cursive">Metal Mania</option>
+            <option value="'Pirata One',cursive">Pirata One</option>
+            <option value="'New Rocker',cursive">New Rocker</option>
+            <option value="'Creepster',cursive">Creepster</option>
+          </optgroup>
+          <optgroup label="Monospace">
+            <option value="'IBM Plex Mono',monospace">IBM Plex Mono</option>
+            <option value="'IBM Plex Sans',sans-serif">IBM Plex Sans</option>
+            <option value="'IBM Plex Serif',serif">IBM Plex Serif</option>
+            <option value="'VT323',monospace">VT323</option>
+            <option value="'Share Tech Mono',monospace">Share Tech Mono</option>
+            <option value="'Courier Prime',monospace">Courier Prime</option>
+            <option value="'JetBrains Mono',monospace">JetBrains Mono</option>
+            <option value="'Cutive Mono',monospace">Cutive Mono</option>
+            <option value="'Fragment Mono',monospace">Fragment Mono</option>
+            <option value="'Space Mono',monospace">Space Mono</option>
+            <option value="'Press Start 2P',cursive">Press Start 2P</option>
+          </optgroup>
+          <optgroup label="Custom">
+            <option value="__custom__" id="wordCustomOpt">↑ Subir fuente...</option>
+          </optgroup>
+        </select>
+      </div>
+      <input type="file" id="wordFontFile" accept=".ttf,.otf,.woff,.woff2" style="display:none">
+      <div class="row">
+        <button class="action-btn" onclick="shuffleWords()">⇄ Shuffle</button>
+      </div>
+      <div id="wordRows"></div>
+    </div>
+
+    <!-- ASCII panel -->
+    <div id="asciiPanel" style="display:none">
+
+      <!-- Category tabs -->
+      <div style="display:flex;flex-wrap:wrap;gap:3px;margin-bottom:8px" id="catTabs"></div>
+
+      <!-- Preset grid -->
+      <div id="presetGrid" style="display:grid;grid-template-columns:repeat(3,1fr);gap:3px;margin-bottom:8px"></div>
+
+      <!-- Preview -->
+      <div style="font-size:9px;color:#444;letter-spacing:1px;text-transform:uppercase;margin-bottom:3px">Preview</div>
+      <div id="charPreview" style="font-size:11px;color:#e8ff00;font-family:monospace;word-break:break-all;line-height:1.6;background:#0a0a0a;padding:5px 6px;border:1px solid #1a1a1a;margin-bottom:8px;min-height:28px;letter-spacing:2px"></div>
+
+      <div class="row">
+        <button class="action-btn" id="shuffleBtn" onclick="shuffleCharset()">⇄ Shuffle</button>
+        <button class="action-btn" id="resetCharsBtn" onclick="resetCharset()">↺ Reset</button>
+      </div>
+      <div class="row">
+        <span class="lbl">Color</span>
+        <div class="swatch" id="asciiColorSw" style="background:#ffffff" onclick="document.getElementById('asciiColorPick').click()"></div>
+        <input type="color" id="asciiColorPick" value="#ffffff" style="display:none"
+          oninput="P.asciiColor=this.value;if(audioBase)audioBase.asciiColor=this.value;document.getElementById('asciiColorSw').style.background=this.value;document.getElementById('asciiColorHex').textContent=this.value;clearAsciiTexCache()">
+        <span class="hex" id="asciiColorHex">#ffffff</span>
+      </div>
+      <div class="row">
+        <span class="lbl">Tipografía</span>
+        <select id="asciiFontSel" onchange="setAsciiFont(this.value)" style="flex:1">
+          <optgroup label="Monospace">
+            <option value="monospace" selected>Monospace</option>
+            <option value="'JetBrains Mono',monospace">JetBrains Mono</option>
+            <option value="'Cutive Mono',monospace">Cutive Mono</option>
+            <option value="'Fragment Mono',monospace">Fragment Mono</option>
+            <option value="'Space Mono',monospace">Space Mono</option>
+            <option value="'Press Start 2P',cursive">Press Start 2P</option>
+            <option value="'IBM Plex Mono',monospace">IBM Plex Mono</option>
+            <option value="'Share Tech Mono',monospace">Share Tech Mono</option>
+            <option value="'VT323',monospace">VT323</option>
+            <option value="'Courier Prime',monospace">Courier Prime</option>
+          </optgroup>
+          <optgroup label="IBM">
+            <option value="'IBM Plex Sans',sans-serif">IBM Plex Sans</option>
+            <option value="'IBM Plex Serif',serif">IBM Plex Serif</option>
+          </optgroup>
+          <optgroup label="Serif">
+            <option value="'Cinzel',serif">Cinzel</option>
+            <option value="'Playfair Display',serif">Playfair Display</option>
+            <option value="'Bodoni Moda',serif">Bodoni Moda</option>
+            <option value="'Cormorant Garamond',serif">Cormorant Garamond</option>
+            <option value="'Cormorant Infant',serif">Cormorant Infant</option>
+            <option value="'Rozha One',serif">Rozha One</option>
+            <option value="'Abril Fatface',cursive">Abril Fatface</option>
+            <option value="'Yeseva One',cursive">Yeseva One</option>
+            <option value="'Libre Bodoni',serif">Libre Bodoni</option>
+            <option value="'Vidaloka',serif">Vidaloka</option>
+            <option value="'Rufina',serif">Rufina</option>
+            <option value="'DM Serif Display',serif">DM Serif Display</option>
+            <option value="'Fraunces',serif">Fraunces</option>
+          </optgroup>
+          <optgroup label="Sans-serif">
+            <option value="'Big Shoulders Display',sans-serif">Big Shoulders Display</option>
+            <option value="'Barlow Condensed',sans-serif">Barlow Condensed</option>
+            <option value="'Oswald',sans-serif">Oswald</option>
+            <option value="'Bebas Neue',sans-serif">Bebas Neue</option>
+            <option value="'Space Grotesk',sans-serif">Space Grotesk</option>
+            <option value="'Unbounded',sans-serif">Unbounded</option>
+            <option value="'Syne',sans-serif">Syne</option>
+            <option value="'Josefin Sans',sans-serif">Josefin Sans</option>
+            <option value="'Poiret One',cursive">Poiret One</option>
+            <option value="'Righteous',cursive">Righteous</option>
+            <option value="'Sora',sans-serif">Sora</option>
+            <option value="'Special Elite',cursive">Special Elite</option>
+            <option value="'Rubik Glitch',cursive">Rubik Glitch</option>
+          </optgroup>
+          <optgroup label="Display">
+            <option value="'Metal Mania',cursive">Metal Mania</option>
+            <option value="'Pirata One',cursive">Pirata One</option>
+            <option value="'New Rocker',cursive">New Rocker</option>
+            <option value="'Creepster',cursive">Creepster</option>
+          </optgroup>
+          <optgroup label="Custom">
+            <option value="__custom__" id="asciiCustomOpt">↑ Subir fuente...</option>
+          </optgroup>
+        </select>
+      </div>
+      <input type="file" id="asciiFontFile" accept=".ttf,.otf,.woff,.woff2" style="display:none">
+      <div class="row">
+        <span class="lbl">Bold</span>
+        <input type="checkbox" id="asciiBoldCk" checked onchange="P.asciiBold=this.checked;clearAsciiTexCache()">
+      </div>
+    </div>
+  </div>
+
+  <!-- AUTOMATION -->
+  <div class="sec-head" id="hAuto" onclick="toggleSec('bAuto','hAuto')">
+    <span class="sec-lbl">Automation</span><span class="arrow">▼</span>
+  </div>
+  <div class="sec-body" id="bAuto">
+
+    <!-- Presets -->
+    <div style="font-size:9px;color:#444;letter-spacing:1.5px;text-transform:uppercase;margin-bottom:6px">Presets</div>
+    <div class="row">
+      <button class="action-btn" onclick="applyPreset('soft')">Soft</button>
+      <button class="action-btn" onclick="applyPreset('mid')">Mid</button>
+      <button class="action-btn" onclick="applyPreset('hard')">Hard</button>
+      <button class="action-btn" onclick="applyPreset('reset')">Reset</button>
+    </div>
+
+    <div style="height:1px;background:#1a1a1a;margin:6px 0 10px"></div>
+
+    <!-- Live Automation (Video / Camera) -->
+    <div style="font-size:9px;color:#444;letter-spacing:1.5px;text-transform:uppercase;margin-bottom:6px">Live Automation · Video / Cam</div>
+    <div class="row">
+      <span class="lbl">Hold (sec)</span>
+      <input type="range" min="0.5" max="8" step="0.5" value="2" id="liveHoldSl"
+        oninput="liveHold=+this.value;document.getElementById('liveHoldV').textContent=this.value+'s'">
+      <span class="val" id="liveHoldV">2s</span>
+    </div>
+    <div class="row">
+      <button class="action-btn" id="livePlayBtn" onclick="toggleLiveAuto()" style="flex:2">▶ Play Montage</button>
+    </div>
+    <div id="liveStatus" style="font-size:9px;color:#555;letter-spacing:1px;margin-top:4px;min-height:12px"></div>
+
+    <div style="height:1px;background:#1a1a1a;margin:6px 0 10px"></div>
+
+    <!-- Image Sequence -->
+    <div style="font-size:9px;color:#444;letter-spacing:1.5px;text-transform:uppercase;margin-bottom:6px">Image Sequence</div>
+    <div id="seqDropGrid" style="display:grid;grid-template-columns:repeat(5,1fr);gap:3px;margin-bottom:8px"></div>
+    <div class="row">
+      <button class="action-btn" onclick="document.getElementById('seqFileIn').click()">+ Add Images</button>
+      <button class="action-btn" onclick="clearSeqImages()">✕ Clear</button>
+    </div>
+    <input type="file" id="seqFileIn" accept="image/*" multiple style="display:none">
+
+    <div class="row">
+      <span class="lbl">Hold (sec)</span>
+      <input type="range" min="0.5" max="8" step="0.5" value="2" id="seqHoldSl"
+        oninput="seqHold=+this.value;document.getElementById('seqHoldV').textContent=this.value+'s'">
+      <span class="val" id="seqHoldV">2s</span>
+    </div>
+    <div class="row">
+      <span class="lbl">Transition</span>
+      <input type="range" min="0.5" max="4" step="0.5" value="1" id="seqTransSl"
+        oninput="seqTrans=+this.value;document.getElementById('seqTransV').textContent=this.value+'s'">
+      <span class="val" id="seqTransV">1s</span>
+    </div>
+    <div class="row">
+      <button class="action-btn" id="seqPlayBtn" onclick="toggleSeqPlay()" style="flex:2">▶ Play Montage</button>
+    </div>
+    <div id="seqStatus" style="font-size:9px;color:#555;letter-spacing:1px;margin-top:4px;min-height:12px"></div>
+  </div>
+
+  <!-- AUDIO -->
+  <div class="sec-head" id="hAudio" onclick="toggleSec('bAudio','hAudio')">
+    <span class="sec-lbl">Audio</span><span class="arrow">▼</span>
+  </div>
+  <div class="sec-body" id="bAudio">
+    <div class="row">
+      <button class="action-btn" id="audioBtn" onclick="toggleAudio()" style="flex:2">⏺ Activar Mic</button>
+    </div>
+    <div id="audioStatus" style="font-size:9px;color:#555;letter-spacing:1px;margin-top:2px;margin-bottom:6px;min-height:12px"></div>
+
+    <!-- Visualizer bars -->
+    <div style="display:flex;gap:2px;margin-bottom:10px;height:18px;align-items:flex-end" id="audioViz">
+      <div id="vizL" style="flex:1;background:#1a1a1a;height:4px;transition:height .05s"></div>
+      <div id="vizM" style="flex:1;background:#1a1a1a;height:4px;transition:height .05s"></div>
+      <div id="vizH" style="flex:1;background:#1a1a1a;height:4px;transition:height .05s"></div>
+    </div>
+
+    <!-- Band assignments -->
+    <div style="font-size:9px;color:#444;letter-spacing:1.5px;text-transform:uppercase;margin-bottom:6px">Asignaciones</div>
+
+    <div class="row">
+      <span class="lbl" style="color:#e8ff00;font-size:9px">Graves</span>
+      <select id="assignL" style="flex:1">
+        <option value="none">— ninguno</option>
+        <option value="rowOffset">Row Offset</option>
+        <option value="rows">Rows</option>
+        <option value="cols">Cols</option>
+        <option value="colOffset">Col Offset</option>
+        <option value="speed">Speed</option>
+        <option value="ease">Ease</option>
+        <option value="shuffle">Shuffle</option>
+        <option value="color">Color</option>
+        <option value="maxLevel">Max Level</option>
+        <option value="minLevel">Min Level</option>
+      </select>
+      <input type="range" min="0" max="2" step="0.05" value="1" id="amtL" style="width:40px">
+    </div>
+    <div class="row">
+      <span class="lbl" style="color:#aaa;font-size:9px">Medios</span>
+      <select id="assignM" style="flex:1">
+        <option value="none">— ninguno</option>
+        <option value="rowOffset">Row Offset</option>
+        <option value="rows">Rows</option>
+        <option value="cols">Cols</option>
+        <option value="colOffset">Col Offset</option>
+        <option value="speed">Speed</option>
+        <option value="ease" selected>Ease</option>
+        <option value="shuffle">Shuffle</option>
+        <option value="color">Color</option>
+        <option value="maxLevel">Max Level</option>
+        <option value="minLevel">Min Level</option>
+      </select>
+      <input type="range" min="0" max="2" step="0.05" value="1" id="amtM" style="width:40px">
+    </div>
+    <div class="row">
+      <span class="lbl" style="color:#555;font-size:9px">Agudos</span>
+      <select id="assignH" style="flex:1">
+        <option value="none">— ninguno</option>
+        <option value="rowOffset">Row Offset</option>
+        <option value="rows">Rows</option>
+        <option value="cols">Cols</option>
+        <option value="colOffset">Col Offset</option>
+        <option value="speed" selected>Speed</option>
+        <option value="ease">Ease</option>
+        <option value="shuffle">Shuffle</option>
+        <option value="color">Color</option>
+        <option value="maxLevel">Max Level</option>
+        <option value="minLevel">Min Level</option>
+      </select>
+      <input type="range" min="0" max="2" step="0.05" value="1" id="amtH" style="width:40px">
+    </div>
+
+    <div style="height:1px;background:#1a1a1a;margin:8px 0 8px"></div>
+    <div style="font-size:9px;color:#444;letter-spacing:1.5px;text-transform:uppercase;margin-bottom:6px">Ola</div>
+    <div class="row">
+      <span class="lbl">Intensidad</span>
+      <input type="range" min="0" max="8" step="0.1" value="5" id="audioWaveSlider"
+        oninput="audioWaveMod=+this.value;document.getElementById('audioWaveV').textContent=(+this.value).toFixed(1)">
+      <span class="val" id="audioWaveV">5.0</span>
+    </div>
+    <div class="row">
+      <span class="lbl">Sensibilidad</span>
+      <input type="range" min="1" max="20" step="0.5" value="4" id="audioGainSl"
+        oninput="audioGain=+this.value;if(window._audioGainNode)window._audioGainNode.gain.value=+this.value;document.getElementById('audioGainV').textContent=(+this.value).toFixed(1)">
+      <span class="val" id="audioGainV">4.0</span>
+    </div>
+    <div class="row">
+      <span class="lbl">Suavizado</span>
+      <input type="range" min="0.5" max="0.99" step="0.01" value="0.65" id="audioSmooth"
+        oninput="audioSmoothVal=+this.value">
+    </div>
+    <div style="font-size:8px;color:#383838;letter-spacing:0.5px;line-height:1.5;margin-top:4px">
+      El audio acelera la ola. Las bandas pueden asignarse a parámetros adicionales.
+    </div>
+  </div>
+
+  <!-- PUNTERO / LIDAR -->
+  <div class="sec-head" id="hPtr" onclick="toggleSec('bPtr','hPtr')">
+    <span class="sec-lbl">Puntero · Lidar</span><span class="arrow">▼</span>
+  </div>
+  <div class="sec-body" id="bPtr">
+    <div class="row">
+      <button class="action-btn active" id="ptrBtn" onclick="togglePointer()" style="flex:2">Puntero activo</button>
+      <button class="action-btn active" id="ptrHudBtn" onclick="togglePtrHud()" style="flex:1.4">Punto sí</button>
+    </div>
+    <div class="row">
+      <span class="lbl">X →</span>
+      <select id="ptrX" onchange="setPtrMap()"><option value="speed" selected>Velocidad</option><option value="rows">Filas</option><option value="rowOffset">Offset filas</option><option value="colOffset">Offset columnas</option><option value="ease">Easing</option><option value="cols">Columnas</option><option value="minLevel">Min</option><option value="maxLevel">Max</option><option value="color">Color (tono)</option><option value="shuffle">Shuffle</option><option value="time">Tiempo</option><option value="none">— nada —</option></select>
+    </div>
+    <div class="row">
+      <span class="lbl">Y ↑</span>
+      <select id="ptrY" onchange="setPtrMap()"><option value="speed">Velocidad</option><option value="rows">Filas</option><option value="rowOffset" selected>Offset filas</option><option value="colOffset">Offset columnas</option><option value="ease">Easing</option><option value="cols">Columnas</option><option value="minLevel">Min</option><option value="maxLevel">Max</option><option value="color">Color (tono)</option><option value="shuffle">Shuffle</option><option value="time">Tiempo</option><option value="none">— nada —</option></select>
+    </div>
+    <div class="row">
+      <span class="lbl">Z ⇥</span>
+      <select id="ptrZ" onchange="setPtrMap()"><option value="speed">Velocidad</option><option value="rows">Filas</option><option value="rowOffset">Offset filas</option><option value="colOffset">Offset columnas</option><option value="ease">Easing</option><option value="cols">Columnas</option><option value="minLevel">Min</option><option value="maxLevel">Max</option><option value="color">Color (tono)</option><option value="shuffle">Shuffle</option><option value="time">Tiempo</option><option value="none" selected>— nada —</option></select>
+    </div>
+    <div class="row">
+      <span class="lbl">Suavizado</span>
+      <input type="range" min="2" max="40" value="15" oninput="ptr.k=this.value/100;document.getElementById('ptrKv').textContent=this.value">
+      <span class="val" id="ptrKv">15</span>
+    </div>
+    <div id="ptrStatus" style="font-size:9px;color:#555;letter-spacing:1px;margin-top:2px;min-height:12px"></div>
+    <div style="font-size:8px;color:#383838;letter-spacing:0.5px;line-height:1.5;margin-top:4px">
+      Mouse, touch o lidar (como puntero) sobre el visual. Por defecto: en Anim X=velocidad, Y=offset filas; en Cam/Video/Image X=min, Y=filas (lo único que cambia el resultado ahí). Si elegís otro a mano, queda fijo. Z necesita que algo mande profundidad: presión del touch/lápiz, rueda del mouse, o window.sentioZ(0..1) desde la interfaz del lidar. Al salir del visual los valores quedan fijos. Shuffle se dispara cada vez que cruzás una franja (10 por eje). Color rota el tono según cuánto te movés desde donde entraste. Tecla P: activar/desactivar. Tecla I o botón «Punto»: mostrar/ocultar el punto (el puntero sigue activo). Tecla H o botón ☰ (abajo a la izquierda): mostrar/ocultar panel.
+    </div>
+  </div>
+
+  <!-- EXPORT -->
+  <div class="sec-head" id="hExport" onclick="toggleSec('bExport','hExport')">
+    <span class="sec-lbl">Export</span><span class="arrow">▼</span>
+  </div>
+  <div class="sec-body" id="bExport">
+    <!-- REC -->
+    <div class="row">
+      <button class="action-btn" id="recBtn" onclick="toggleRec()" style="flex:1">⏺ MP4</button>
+      <button class="action-btn" id="recAlphaBtn" onclick="toggleRecAlpha()" style="flex:1">⏺ Alpha</button>
+    </div>
+    <div class="row">
+      <span class="lbl">Duration</span>
+      <input type="range" min="1" max="60" step="1" value="5" id="recDurSl"
+        oninput="recDuration=+this.value;document.getElementById('recDurV').textContent=this.value+'s'">
+      <span class="val" id="recDurV">5s</span>
+    </div>
+    <div class="row">
+      <span class="lbl">FPS</span>
+      <select id="recFpsSel" onchange="recFps=+this.value" style="flex:1">
+        <option value="24">24</option>
+        <option value="30" selected>30</option>
+        <option value="60">60</option>
+      </select>
+    </div>
+    <div style="font-size:8px;color:#383838;letter-spacing:0.5px;line-height:1.5;margin-bottom:4px">
+      MP4: H.264 alta calidad · Alpha: PNG Seq con transparencia<br>
+      AE: Import → File → primer frame → ✓ PNG Sequence<br>
+      <span style="color:#555">☕ +6s requiere un cafecito</span>
+    </div>
+    <div class="rec-status" id="recStatus" style="font-size:9px;color:#555;letter-spacing:1px;margin-top:2px;margin-bottom:6px;min-height:14px"></div>
+    <div style="height:1px;background:#1a1a1a;margin:4px 0 8px"></div>
+    <!-- PNG still -->
+    <div class="row">
+      <button class="action-btn" onclick="savePNG(false)">⬇ PNG + BG</button>
+      <button class="action-btn" onclick="savePNG(true)">⬇ PNG Alpha</button>
+    </div>
+  </div>
+
+  </div><!-- /panelScroll -->
+</aside>
+
+<!-- ☕ COFFEE MODAL -->
+<div id="coffeeModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.85);z-index:1000;display:none;align-items:center;justify-content:center">
+  <div style="background:#0c0c0c;border:1px solid #2a2a2a;padding:28px 24px;max-width:300px;width:90%;text-align:center">
+    <div style="font-size:28px;margin-bottom:12px">☕</div>
+    <div style="font-size:12px;color:#e8ff00;letter-spacing:3px;text-transform:uppercase;margin-bottom:10px">más de 6 segundos</div>
+    <div style="font-size:11px;color:#777;line-height:1.7;margin-bottom:20px">
+      Los videos largos toman más recursos.<br>Si SentioLab te es útil, invitame un cafecito y desbloqueá la descarga.
+    </div>
+    <a id="coffeeLink" href="https://cafecito.app/molduvanshi" target="_blank"
+      style="display:block;background:#e8ff00;color:#000;font-size:10px;letter-spacing:2px;text-transform:uppercase;padding:10px;text-decoration:none;margin-bottom:10px;font-weight:600"
+      onclick="unlockExport()">
+      ☕ Invitame un cafecito
+    </a>
+    <button onclick="closeCoffeeModal()" 
+      style="width:100%;background:#000;border:1px solid #1c1c1c;color:#444;font-size:9px;letter-spacing:2px;text-transform:uppercase;padding:8px;cursor:pointer">
+      Cancelar
+    </button>
+    <div style="font-size:8px;color:#333;margin-top:12px;letter-spacing:0.5px">
+      Después de donar volvé y el video se descarga automáticamente.
+    </div>
+  </div>
+</div>
+<canvas id="alphaCv" style="display:none"></canvas>
+
+<script>
+// ─── STATE ───────────────────────────────────────────────────────────
+const P = {
+  W:1080, H:1080,
+  mode:'animation',
+  speed:1, time:0,
+  direction:'vertical',
+  rows:30, rowOffset:20,
+  cols:2, colOffset:0,
+  ease:1.7,
+  bg:'#000000',
+  difference:true,
+  minLevel:0, maxLevel:255,
+  mirror:true,
+  colors:['#ff0000','#0000ff','#00cbf7','#ffc200'],
+  words:['S','M','L','XL'],
+  contentType:'words',
+  asciiCharsetName:'standard',
+  asciiCharset:'@#S%?*+;:,. ',
+  asciiColor:'#ffffff',
+  asciiFont:'monospace',
+  wordFont:"'Arial Black',Impact,sans-serif",
+  asciiBold:true,
+};
+const asciiCharsets={
+  standard:'@#S%?*+;:,. ',
+  dense:'$@B%8&WM#*oahkbdpqwmZO0QLCJUYXzcvunxrjft/\\|()1{}[]?-_+~<>i!lI;:,"^\'. ',
+  minimal:'@+:. ',
+  blocks:'█▓▒░ ',
+  custom:'@#S%?*+;:,. ',
+};
+
+// ─── VIDEO STATE ──────────────────────────────────────────────────────
+const srcVid = document.getElementById('srcVid');
+let vidReady = false;
+let vidSeeking = false;
+let vidMaxDur = 15; // seconds
+
+document.getElementById('videoIn').onchange = function(e){
+  const file = e.target.files[0]; if(!file) return;
+  const url = URL.createObjectURL(file);
+  srcVid.src = url;
+  srcVid.load();
+  srcVid.onloadedmetadata = () => {
+    const dur = srcVid.duration;
+    if(dur > vidMaxDur){
+      // trim: we'll just stop reading after vidMaxDur
+    }
+    vidReady = true;
+    srcVid.pause();
+    const dz = document.getElementById('dropZoneVid');
+    dz.textContent = file.name; dz.classList.add('has-img');
+    document.getElementById('vidPlayerControls').style.display = '';
+    document.getElementById('vidDurRow').textContent =
+      'Duration: ' + Math.min(dur, vidMaxDur).toFixed(1) + 's' + (dur > vidMaxDur ? ' (trimmed to 15s)' : '');
+    document.getElementById('vidSeek').max = Math.min(dur, vidMaxDur);
+  };
+};
+
+// Drop for video
+const dzVid = document.getElementById('dropZoneVid');
+dzVid.addEventListener('dragover', e=>{ e.preventDefault(); dzVid.classList.add('over'); });
+dzVid.addEventListener('dragleave', ()=>dzVid.classList.remove('over'));
+dzVid.addEventListener('drop', e=>{
+  e.preventDefault(); dzVid.classList.remove('over');
+  const file = e.dataTransfer.files[0];
+  if(!file || !file.type.startsWith('video/')) return;
+  document.getElementById('videoIn').files; // can't assign easily, just use URL directly
+  const url = URL.createObjectURL(file);
+  srcVid.src = url; srcVid.load();
+  srcVid.onloadedmetadata = () => {
+    vidReady = true; srcVid.pause();
+    const dur = srcVid.duration;
+    const dz = document.getElementById('dropZoneVid');
+    dz.textContent = file.name; dz.classList.add('has-img');
+    document.getElementById('vidPlayerControls').style.display = '';
+    document.getElementById('vidDurRow').textContent =
+      'Duration: ' + Math.min(dur, vidMaxDur).toFixed(1) + 's' + (dur > vidMaxDur ? ' (trimmed to 15s)' : '');
+    document.getElementById('vidSeek').max = Math.min(dur, vidMaxDur);
+  };
+});
+
+function toggleVidPlay(){
+  if(!vidReady) return;
+  if(srcVid.paused){ srcVid.play(); document.getElementById('vidPlayBtn').textContent='⏸ Pause'; }
+  else { srcVid.pause(); document.getElementById('vidPlayBtn').textContent='▶ Play'; }
+}
+function restartVid(){
+  if(!vidReady) return;
+  srcVid.currentTime = 0;
+  srcVid.play();
+  document.getElementById('vidPlayBtn').textContent='⏸ Pause';
+}
+function seekVid(val){
+  if(!vidReady) return;
+  srcVid.currentTime = val;
+}
+srcVid.ontimeupdate = ()=>{
+  if(vidSeeking) return;
+  const t = srcVid.currentTime;
+  document.getElementById('vidSeek').value = t;
+  document.getElementById('vidTime').textContent = t.toFixed(1)+'s';
+};
+
+// ─── EXPORT STATE ─────────────────────────────────────────────────────
+let recDuration = 5;
+let recFps = 30;
+let exportRunning = false;
+
+function setExportBtns(disabled){
+  document.getElementById('recBtn').disabled      = disabled;
+  document.getElementById('recAlphaBtn').disabled = disabled;
+}
+function recSt(msg, color='#888'){
+  const el = document.getElementById('recStatus');
+  el.textContent = msg; el.style.color = color;
+}
+async function loadScript(url){
+  return new Promise((res,rej)=>{
+    if(document.querySelector(`script[src="${url}"]`)){ res(); return; }
+    const s=document.createElement('script'); s.src=url; s.onload=res; s.onerror=rej;
+    document.head.appendChild(s);
+  });
+}
+
+// ── MP4 — real-time streaming encode (no frame buffer) ────────────────
+// ─── COFFEE PAYWALL ───────────────────────────────────────────────────
+const FREE_SEC = 6;
+let coffeeUnlocked = true; // true after user clicks donate
+let pendingExport  = null;  // 'mp4' | 'alpha' — stored while modal is open
+
+function checkPaywall(type){
+  if(recDuration <= FREE_SEC || coffeeUnlocked){
+    // free or already donated — go straight to export
+    type === 'mp4' ? startMP4() : startAlphaSeq();
+    return;
+  }
+  pendingExport = type;
+  showCoffeeModal();
+}
+
+function showCoffeeModal(){
+  const m = document.getElementById('coffeeModal');
+  m.style.display = 'flex';
+}
+
+function closeCoffeeModal(){
+  document.getElementById('coffeeModal').style.display = 'none';
+  pendingExport = null;
+}
+
+function unlockExport(){
+  // Called when user clicks the donate link — give them 3s to complete payment
+  // then mark as unlocked and close modal so they can retry
+  coffeeUnlocked = true;
+  setTimeout(()=>{
+    document.getElementById('coffeeModal').style.display = 'none';
+    if(pendingExport){
+      recSt('☕ Gracias! Iniciando descarga…', '#e8ff00');
+      setTimeout(()=>{
+        pendingExport === 'mp4' ? startMP4() : startAlphaSeq();
+        pendingExport = null;
+      }, 800);
+    }
+  }, 3000);
+}
+
+function toggleRec(){
+  if(exportRunning){ exportRunning=false; return; }
+  checkPaywall('mp4');
+}
+
+function toggleRecAlpha(){
+  if(exportRunning){ exportRunning=false; return; }
+  checkPaywall('alpha');
+}
+
+async function startMP4(){
+  if(typeof VideoEncoder === 'undefined'){
+    recSt('✗ Requiere Chrome/Edge 94+', '#ff4444'); return;
+  }
+  setExportBtns(true);
+  const btn = document.getElementById('recBtn');
+  btn.disabled=false; btn.textContent='⏹ Stop'; btn.style.color='#ff4444'; btn.style.borderColor='#ff4444';
+
+  try { await loadScript('https://cdn.jsdelivr.net/npm/mp4-muxer@4/build/mp4-muxer.min.js'); }
+  catch(e){ recSt('✗ mp4-muxer: '+e.message,'#ff4444'); setExportBtns(false); btn.textContent='⏺ MP4'; btn.style.color=''; btn.style.borderColor=''; return; }
+
+  // Make W/H even (H.264 requirement)
+  const W = cv.width  % 2 === 0 ? cv.width  : cv.width  - 1;
+  const H = cv.height % 2 === 0 ? cv.height : cv.height - 1;
+  const total = Math.round(recDuration * recFps);
+  const usPerFrame = Math.round(1_000_000 / recFps);
+
+  const muxer = new Mp4Muxer.Muxer({
+    target: new Mp4Muxer.ArrayBufferTarget(),
+    video: { codec:'avc', width:W, height:H },
+    fastStart: 'in-memory',
+  });
+
+  let encodeError = null;
+  const encoder = new VideoEncoder({
+    output: (chunk, meta) => muxer.addVideoChunk(chunk, meta),
+    error:  e => { encodeError = e; },
+  });
+  encoder.configure({
+    codec: 'avc1.640028',   // H.264 High Profile Level 4.0
+    width: W, height: H,
+    bitrate: 25_000_000,    // 25 Mbps
+    framerate: recFps,
+    latencyMode: 'quality',
+  });
+
+  exportRunning = true;
+  let fi = 0;
+
+  // Encode one frame per rAF tick — browser stays responsive
+  await new Promise(resolve => {
+    function tick(){
+      if(!exportRunning || fi >= total || encodeError){ resolve(); return; }
+
+      // Create VideoFrame directly from canvas — zero extra copy
+      const frame = new VideoFrame(cv, {
+        timestamp: fi * usPerFrame,
+        duration:  usPerFrame,
+      });
+      encoder.encode(frame, { keyFrame: fi % 30 === 0 });
+      frame.close();
+
+      fi++;
+      if(fi % 5 === 0) recSt('● Encoding '+fi+' / '+total, fi%10===0?'#ff4444':'#ff9999');
+
+      requestAnimationFrame(tick);
+    }
+    requestAnimationFrame(tick);
+  });
+
+  btn.textContent='⏺ MP4'; btn.style.color=''; btn.style.borderColor='';
+
+  if(encodeError){
+    recSt('✗ '+encodeError.message, '#ff4444');
+    setExportBtns(false); return;
+  }
+
+  recSt('Finalizando…', '#e8ff00');
+  await encoder.flush();
+  muxer.finalize();
+
+  const blob = new Blob([muxer.target.buffer], {type:'video/mp4'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'accordion_'+Date.now()+'.mp4';
+  a.click();
+  recSt('✓ MP4 guardado! ('+(blob.size/1024/1024).toFixed(1)+'MB · H.264 25Mbps)', '#7dff7d');
+  setTimeout(()=>{ recSt(''); }, 6000);
+  setExportBtns(false);
+  exportRunning = false;
+}
+
+// ── PNG Sequence with Alpha (ZIP) — streamed, low memory ─────────────
+async function startAlphaSeq(){
+  setExportBtns(true);
+  const btn = document.getElementById('recAlphaBtn');
+  btn.disabled=false; btn.textContent='⏹ Stop'; btn.style.color='#ff4444'; btn.style.borderColor='#ff4444';
+
+  if(!window.JSZip){
+    recSt('Loading JSZip…','#888');
+    await loadScript('https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js');
+  }
+
+  const total      = Math.round(recDuration * recFps);
+  const msPerFrame = 1000 / recFps;
+  const zip        = new JSZip();
+  const rgb        = hexToRgbArr(P.bg)||[0,0,0];
+  const tol        = 18;
+  exportRunning    = true;
+  let fi = 0;
+
+  // Reuse one offscreen canvas across all frames
+  const tmp = document.createElement('canvas');
+  tmp.width = cv.width; tmp.height = cv.height;
+  const tc = tmp.getContext('2d');
+
+  await new Promise(resolve => {
+    function grab(){
+      if(!exportRunning || fi >= total){ resolve(); return; }
+
+      tc.clearRect(0,0,tmp.width,tmp.height);
+      tc.drawImage(cv, 0, 0);
+      const id = tc.getImageData(0, 0, cv.width, cv.height);
+      const d  = id.data;
+      for(let i=0;i<d.length;i+=4){
+        if(Math.abs(d[i]-rgb[0])<tol && Math.abs(d[i+1]-rgb[1])<tol && Math.abs(d[i+2]-rgb[2])<tol)
+          d[i+3]=0;
+      }
+      tc.putImageData(id,0,0);
+
+      // Add to zip as PNG — only this frame lives in memory at a time
+      zip.file('frame_'+String(fi).padStart(5,'0')+'.png',
+        tmp.toDataURL('image/png').split(',')[1], {base64:true});
+
+      fi++;
+      if(fi%5===0) recSt('● Alpha '+fi+' / '+total, fi%10===0?'#ff4444':'#ff9999');
+      setTimeout(grab, msPerFrame);
+    }
+    grab();
+  });
+
+  btn.textContent='⏺ Alpha'; btn.style.color=''; btn.style.borderColor='';
+  if(!fi){ setExportBtns(false); exportRunning=false; return; }
+
+  recSt('Zipping '+fi+' frames…','#e8ff00');
+  const blob = await zip.generateAsync(
+    {type:'blob', compression:'DEFLATE', compressionOptions:{level:3}},
+    m => recSt('Zipping… '+m.percent.toFixed(0)+'%','#e8ff00')
+  );
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(blob);
+  a.download='accordion_alpha_'+Date.now()+'.zip';
+  a.click();
+  recSt('✓ '+fi+' PNG frames con alpha guardados!','#7dff7d');
+  setTimeout(()=>{ recSt(''); },5000);
+  setExportBtns(false);
+  exportRunning=false;
+}
+
+// ─── PNG EXPORT ───────────────────────────────────────────────────────
+function savePNG(transparent){
+  const a = document.createElement('a');
+  if(!transparent){
+    a.href = cv.toDataURL('image/png');
+    a.download = 'accordion_bg_' + Date.now() + '.png';
+    a.click();
+    return;
+  }
+  // Alpha version: copy canvas then knock out BG color pixels
+  const tmp = document.createElement('canvas');
+  tmp.width = cv.width; tmp.height = cv.height;
+  const tc = tmp.getContext('2d');
+  tc.drawImage(cv, 0, 0);
+  const rgb = hexToRgbArr(P.bg) || [0,0,0];
+  const imgData = tc.getImageData(0, 0, tmp.width, tmp.height);
+  const d = imgData.data;
+  const [r,g,b] = rgb;
+  const tol = 18; // tolerance for anti-aliased edges
+  for(let i=0;i<d.length;i+=4){
+    if(Math.abs(d[i]-r)<tol && Math.abs(d[i+1]-g)<tol && Math.abs(d[i+2]-b)<tol){
+      d[i+3] = 0;
+    }
+  }
+  tc.putImageData(imgData, 0, 0);
+  a.href = tmp.toDataURL('image/png');
+  a.download = 'accordion_alpha_' + Date.now() + '.png';
+  a.click();
+}
+
+function hexToRgbArr(hex){
+  const r=/^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+  return r ? [parseInt(r[1],16),parseInt(r[2],16),parseInt(r[3],16)] : null;
+}
+
+function drawASCIITo(tc, W, H){
+  const chars = P.asciiCharset||'@#S%?*+;:,. ';
+  const clen = chars.length;
+  const rows = P.rows;
+  const cols = Math.max(1,Math.round(W/H*rows));
+  const cellW = W/cols, cellH = H/rows;
+  const fontSize = cellH*1.05;
+  tc.textAlign='center'; tc.textBaseline='middle';
+  tc.fillStyle = P.asciiColor;
+  tc.font=`${P.asciiBold?'900':'400'} ${fontSize}px ${P.asciiFont||'monospace'}`;
+  for(let r=0;r<rows;r++){
+    for(let c=0;c<cols;c++){
+      let norm;
+      if(P.mode==='animation'){
+        const tOffset=r*P.rowOffset+c*P.colOffset;
+        norm=(Math.sin((P.time+tOffset)*0.02*P.speed)*0.5+0.5);
+      } else {
+        norm=getASCIIBrightness((c+0.5)/cols,(r+0.5)/rows);
+      }
+      const ch=chars[Math.min(clen-1,Math.floor(norm*clen))];
+      if(!ch||ch===' ') continue;
+      tc.fillText(ch, c*cellW+cellW/2, r*cellH+cellH/2);
+    }
+  }
+}
+
+// ─── RICH PRESET COLLECTIONS ──────────────────────────────────────────
+const charCollections = [
+  // ASCII
+  { cat:'ASCII', name:'Classic',   chars:'@#S%?*+;:,. ' },
+  { cat:'ASCII', name:'Dense',     chars:'$@B%8&WM#*oahkbdpqwmZO0QLCJUYXzcvunxrjft/|()1{}[]?-_+~<>i!lI;:,". ' },
+  { cat:'ASCII', name:'Minimal',   chars:'@+:. ' },
+  { cat:'ASCII', name:'Slashes',   chars:'#\\/|-_. ' },
+  { cat:'ASCII', name:'Dots',      chars:'●•·. ' },
+  { cat:'ASCII', name:'Hatching',  chars:'#+=−·  ' },
+  // Blocks
+  { cat:'Blocks', name:'Shade',    chars:'█▓▒░ ' },
+  { cat:'Blocks', name:'Quarters', chars:'█▟▙▜▛▚▞▐▌▄▀■□▪▫ ' },
+  { cat:'Blocks', name:'Lines',    chars:'█▉▊▋▌▍▎▏ ' },
+  { cat:'Blocks', name:'Braille',  chars:'⣿⣷⣯⣟⡿⢿⣻⣽⣾⣸⢸⡇⢇⡆⣆⣄⡄⢄⠄⠀' },
+  { cat:'Blocks', name:'Circuit',  chars:'╬╠╣╦╩╔╗╚╝╟╢╤╧─│┼┤├┬┴ ' },
+  { cat:'Blocks', name:'Double',   chars:'╔╦╗╠╬╣╚╩╝═║ ' },
+  // Shapes
+  { cat:'Shapes', name:'Geo',      chars:'◉◎●○◆◇■□▲△▼▽◀▶◐◑◒◓ ' },
+  { cat:'Shapes', name:'Stars',    chars:'★☆✦✧✨✩✪✫✬✭✮✯✰⭐💫 ' },
+  { cat:'Shapes', name:'Circles',  chars:'⬤◉◎○◌◍◦ ' },
+  { cat:'Shapes', name:'Arrows',   chars:'→←↑↓↗↖↘↙↔↕⇒⇐⇑⇓⇔⇕➜➡➤▶◀ ' },
+  { cat:'Shapes', name:'Diamonds', chars:'◈◇◆⬧⬦⬥⬤ ' },
+  { cat:'Shapes', name:'Crosses',  chars:'✚✛✜✝✞✟✠✡✢✣✤✥ ' },
+  // Japanese
+  { cat:'Japan',  name:'Katakana', chars:'アイウエオカキクケコサシスセソタチツテトナニヌネノハヒフヘホマミムメモヤユヨラリルレロワヲン' },
+  { cat:'Japan',  name:'Hiragana', chars:'あいうえおかきくけこさしすせそたちつてとなにぬねのはひふへほまみむめもやゆよらりるれろわをん' },
+  { cat:'Japan',  name:'Kanji',    chars:'日月火水木金土山川田人口目耳手足力気心王玉石糸貝車門雨電風空海' },
+  { cat:'Japan',  name:'Katakana+',chars:'ｱｲｳｴｵｶｷｸｹｺｻｼｽｾｿﾀﾁﾂﾃﾄﾅﾆﾇﾈﾉﾊﾋﾌﾍﾎﾏﾐﾑﾒﾓﾔﾕﾖﾗﾘﾙﾚﾛﾜｦﾝ' },
+  // Math / Science
+  { cat:'Math',   name:'Greek',    chars:'ΩΨΦΣΠΛΘΔΓΑαβγδεζηθικλμνξπρστυφχψω' },
+  { cat:'Math',   name:'Symbols',  chars:'∞∑∏∫∂∇∆∈∉⊂⊃⊆⊇∧∨⊕⊗±×÷≠≈≡≤≥∝∀∃' },
+  { cat:'Math',   name:'Numbers',  chars:'0123456789①②③④⑤⑥⑦⑧⑨⓪' },
+  { cat:'Math',   name:'Roman',    chars:'ⅠⅡⅢⅣⅤⅥⅦⅧⅨⅩⅪⅫ' },
+  // Symbols
+  { cat:'Symbols',name:'Music',    chars:'♩♪♫♬♭♮♯𝄞𝄟𝄠𝄡 ' },
+  { cat:'Symbols',name:'Cards',    chars:'♠♥♦♣♤♡♢♧ ' },
+  { cat:'Symbols',name:'Astro',    chars:'☉☽☾★☆♈♉♊♋♌♍♎♏♐♑♒♓⛎ ' },
+  { cat:'Symbols',name:'Weather',  chars:'☀☁☂☃☄⛅⚡🌙❄🌊 ' },
+  { cat:'Symbols',name:'Runes',    chars:'ᚠᚡᚢᚣᚤᚥᚦᚧᚨᚩᚪᚫᚬᚭᚮᚯᚰᚱᚲᚳᚴᚵᚶᚷᚸᚹᚺᚻᚼᚽᚾᚿ' },
+  { cat:'Symbols',name:'Currency', chars:'$€£¥₿₹₩₺₽¢₪฿₴ ' },
+  // Dingbats
+  { cat:'Dingbats',name:'Hands',   chars:'☞☜☝☟✌✍✋✊✌☞☜ ' },
+  { cat:'Dingbats',name:'Marks',   chars:'✓✔✗✘✕✖⊗⊘✚†‡§¶ ' },
+  { cat:'Dingbats',name:'Flowers', chars:'✿❀❁❂❃❄❅❆✾ ' },
+  { cat:'Dingbats',name:'Misc',    chars:'⚙⚡⚢⚣⚤⚥⚦⚧⚨⚩⚪⚫⚬⚭⚮⚯⚰⚱⚲' },
+
+  // ── APC / Noise ──────────────────────────────────────────────────────
+  { cat:'APC', name:'Pulse',     chars:'█▄▀▐▌░ ' },
+  { cat:'APC', name:'Static',    chars:'▓╬▒│░─·  ' },
+  { cat:'APC', name:'Glitch',    chars:'█╳▒╱░╲▪· ' },
+  { cat:'APC', name:'Noise',     chars:'▓╠▒┼░+· ' },
+  { cat:'APC', name:'Scan',      chars:'━█▒─░·  ' },
+  { cat:'APC', name:'Step',      chars:'█◆▓▒░·  ' },
+  { cat:'APC', name:'Crunch',    chars:'▓▟▒▙░▄· ' },
+  { cat:'APC', name:'VSync',     chars:'█─▓│▒·░  ' },
+  { cat:'APC', name:'Bit',       chars:'█· ' },
+  { cat:'APC', name:'Decay',     chars:'▓◈▒◇░·  ' },
+  { cat:'APC', name:'Burst',     chars:'★▓╬▒░· ' },
+  { cat:'APC', name:'Circuit',   chars:'█╦▓╩▒╠░· ' },
+  { cat:'APC', name:'Rain',      chars:'│▓╎▒░·  ' },
+  { cat:'APC', name:'Shatter',   chars:'◆▓▲▒░·  ' },
+  { cat:'APC', name:'Brute',     chars:'▓@▒#░%· ' },
+];
+
+let manualT=false, playing=true, lastTs=0;
+const animDur=800;
+
+// ─── CANVAS ──────────────────────────────────────────────────────────
+const cv=document.getElementById('cv');
+const ctx=cv.getContext('2d');
+const offCv=document.getElementById('offCv');
+const offCtx=offCv.getContext('2d',{willReadFrequently:true});
+
+function resize(){
+  cv.width=P.W; cv.height=P.H;
+  fitCanvas(); rebuildTextures();
+}
+function fitCanvas(){
+  const wrap=document.getElementById('canvasWrap');
+  const s=Math.min(wrap.clientWidth/P.W, wrap.clientHeight/P.H, 1);
+  cv.style.width=(P.W*s)+'px'; cv.style.height=(P.H*s)+'px';
+}
+window.addEventListener('resize',fitCanvas);
+
+// ─── CAMERA ──────────────────────────────────────────────────────────
+const camVid=document.getElementById('camVid');
+let camReady=false, camStream=null;
+
+async function toggleCamera(){
+  camStream ? stopCamera() : await startCamera();
+}
+async function startCamera(){
+  try {
+    camStream=await navigator.mediaDevices.getUserMedia({video:{width:640,height:480}});
+    camVid.srcObject=camStream;
+    camVid.onloadedmetadata=()=>{
+      camVid.play(); camReady=true;
+      const s=document.getElementById('camStatus');
+      s.textContent='● Camera active'; s.className='cam-status ok';
+      const b=document.getElementById('camBtn');
+      b.textContent='Stop Camera'; b.classList.add('active');
+    };
+  } catch(e){
+    const s=document.getElementById('camStatus');
+    s.textContent='✗ '+e.message; s.className='cam-status err';
+  }
+}
+function stopCamera(){
+  if(camStream){camStream.getTracks().forEach(t=>t.stop());camStream=null;}
+  camVid.srcObject=null; camReady=false;
+  document.getElementById('camBtn').textContent='Start Camera';
+  document.getElementById('camBtn').classList.remove('active');
+  document.getElementById('camStatus').textContent='Camera off';
+  document.getElementById('camStatus').className='cam-status';
+}
+
+// ─── IMAGE UPLOAD ────────────────────────────────────────────────────
+let uploadedImg=null;
+
+document.getElementById('fileIn').onchange=function(e){
+  const file=e.target.files[0]; if(!file) return;
+  const img=new Image();
+  img.onload=()=>{
+    uploadedImg=img;
+    offCv.width=img.width; offCv.height=img.height;
+    offCtx.drawImage(img,0,0);
+    const dz=document.getElementById('dropZone');
+    dz.textContent=file.name; dz.classList.add('has-img');
+  };
+  img.src=URL.createObjectURL(file);
+};
+
+// Drag & drop
+const dz=document.getElementById('dropZone');
+dz.addEventListener('dragover',e=>{e.preventDefault();dz.classList.add('over');});
+dz.addEventListener('dragleave',()=>dz.classList.remove('over'));
+dz.addEventListener('drop',e=>{
+  e.preventDefault(); dz.classList.remove('over');
+  const file=e.dataTransfer.files[0];
+  if(!file||!file.type.startsWith('image/')) return;
+  const inp=document.getElementById('fileIn');
+  try{const dt=new DataTransfer();dt.items.add(file);inp.files=dt.files;}catch(err){}
+  const img=new Image();
+  img.onload=()=>{
+    uploadedImg=img;
+    offCv.width=img.width; offCv.height=img.height;
+    offCtx.drawImage(img,0,0);
+    dz.textContent=file.name; dz.classList.add('has-img');
+  };
+  img.src=URL.createObjectURL(file);
+});
+
+// ─── MODE ────────────────────────────────────────────────────────────
+function setMode(mode){
+  if(P.mode==='camera' && mode!=='camera') stopCamera();
+  if(P.mode==='video'  && mode!=='video'){
+    srcVid.pause();
+    // Clear offscreen so old video frame doesn't bleed into new mode
+    offCtx.clearRect(0,0,offCv.width,offCv.height);
+  }
+  P.mode=mode;
+  ['animation','image','video','camera'].forEach(m=>{
+    const el=document.getElementById('tab-'+m);
+    if(el) el.classList.toggle('on',m===mode);
+  });
+  document.getElementById('imageControls').style.display   = mode==='image'   ? '':'none';
+  document.getElementById('videoControls').style.display   = mode==='video'   ? '':'none';
+  document.getElementById('cameraControls').style.display  = mode==='camera'  ? '':'none';
+  document.getElementById('pixelControls').style.display   = (mode==='image'||mode==='camera'||mode==='video') ? '':'none';
+  document.getElementById('mirrorRow').style.display       = mode==='camera' ? '':'none';
+  document.getElementById('animControls').style.display    = mode==='animation' ? '':'none';
+  document.getElementById('animOutputControls').style.display = mode==='animation' ? '':'none';
+  document.getElementById('playBtn').style.visibility      = mode==='animation' ? 'visible':'hidden';
+
+  try{ ptrAutoMap(); }catch(e){}
+  // If switching to image and one is already loaded, redraw it into offscreen
+  if(mode==='image' && uploadedImg){
+    offCv.width=uploadedImg.width; offCv.height=uploadedImg.height;
+    offCtx.drawImage(uploadedImg,0,0);
+  }
+}
+
+// ─── PIXEL BRIGHTNESS → TEXTURE INDEX ───────────────────────────────
+function getTexIdx(nx,ny){
+  const px=Math.max(0,Math.min(offCv.width-1, Math.floor(nx*offCv.width)));
+  const py=Math.max(0,Math.min(offCv.height-1,Math.floor(ny*offCv.height)));
+  try{
+    const d=offCtx.getImageData(px,py,1,1).data;
+    const b=d[0]*0.299+d[1]*0.587+d[2]*0.114; // 0..255
+    const mn=P.minLevel, mx=P.maxLevel;
+    const norm=Math.max(0,Math.min(1,(b-mn)/Math.max(1,mx-mn)));
+    const len=textures.length;
+    return Math.min(len-1, Math.floor(norm*len));
+  }catch{return 0;}
+}
+
+// ─── TEXTURES ─────────────────────────────────────────────────────────
+let textures=[];
+// ─── FONT MANAGEMENT ──────────────────────────────────────────────────
+function setWordFont(val){
+  if(val === '__custom__'){
+    document.getElementById('wordFontFile').click();
+    return;
+  }
+  P.wordFont = val;
+  rebuildTextures();
+}
+
+function setAsciiFont(val){
+  if(val === '__custom__'){
+    document.getElementById('asciiFontFile').click();
+    return;
+  }
+  P.asciiFont = val;
+  clearAsciiTexCache();
+}
+
+// Load custom font file
+function loadCustomFont(file, target){
+  const name = 'custom_' + target;
+  const reader = new FileReader();
+  reader.onload = function(e){
+    const ff = new FontFace(name, e.target.result);
+    ff.load().then(loaded => {
+      document.fonts.add(loaded);
+      const shortName = file.name.replace(/\.[^.]+$/, '').slice(0, 18);
+      if(target === 'word'){
+        P.wordFont = name;
+        const opt = document.getElementById('wordCustomOpt');
+        if(opt) opt.textContent = '✓ ' + shortName;
+        document.getElementById('wordFontSel').value = '__custom__';
+        rebuildTextures();
+      } else {
+        P.asciiFont = name;
+        const opt = document.getElementById('asciiCustomOpt');
+        if(opt) opt.textContent = '✓ ' + shortName;
+        document.getElementById('asciiFontSel').value = '__custom__';
+        clearAsciiTexCache();
+      }
+    }).catch(err => {
+      console.error(err);
+      alert('No se pudo cargar la fuente. Probá con .ttf o .otf');
+    });
+  };
+  reader.readAsArrayBuffer(file);
+}
+
+document.getElementById('wordFontFile').onchange  = e => { if(e.target.files[0]) loadCustomFont(e.target.files[0], 'word');  e.target.value=''; };
+document.getElementById('asciiFontFile').onchange = e => { if(e.target.files[0]) loadCustomFont(e.target.files[0], 'ascii'); e.target.value=''; };
+
+function rebuildTextures(){
+  textures=P.words.map((w,i)=>buildTexture(w,P.colors[i]));
+}
+function buildTexture(word,color){
+  const size=1000;
+  const oc=document.createElement('canvas');
+  oc.width=size; oc.height=size;
+  const c=oc.getContext('2d');
+  c.fillStyle=P.bg; c.fillRect(0,0,size,size);
+  const txt=(word||'?').toUpperCase();
+  c.fillStyle=color;
+  let fs=400;
+  c.font=`900 ${fs}px ${P.wordFont||"'Arial Black',Impact,sans-serif"}`;
+  const tw=c.measureText(txt).width;
+  fs=Math.min(fs*(size/tw)*0.98,size*3.5);
+  c.font=`900 ${fs}px ${P.wordFont||"'Arial Black',Impact,sans-serif"}`;
+  c.textAlign='center'; c.textBaseline='middle';
+  c.fillText(txt,size/2,size/2);
+  return oc;
+}
+
+// ─── EASE ─────────────────────────────────────────────────────────────
+function easeInOut(x){
+  const e=P.ease;
+  return x<0.5?Math.pow(2,e-1)*Math.pow(x,e):1-Math.pow(-2*x+2,e)/2;
+}
+
+// ─── DRAW ─────────────────────────────────────────────────────────────
+function draw(){
+  const W=P.W,H=P.H;
+  ctx.fillStyle=P.bg; ctx.fillRect(0,0,W,H);
+
+  if(P.contentType==='ascii'){
+    drawASCII(W,H);
+  } else {
+    if(textures.length){
+      ctx.globalCompositeOperation=P.difference?'difference':'source-over';
+      if(P.mode==='animation'){
+        P.direction==='vertical'?drawVert(W,H):drawHor(W,H);
+      } else {
+        drawPixelMode(W,H);
+      }
+      ctx.globalCompositeOperation='source-over';
+    }
+  }
+  mirrorOut();
+}
+
+// ─── ASCII CHAR TEXTURE CACHE ─────────────────────────────────────────
+let asciiTexCache = {}; // key: "char|color|bold" → canvas
+
+function getCharTex(ch, color, bold){
+  const key = ch+'|'+color+'|'+bold+'|'+(P.asciiFont||'monospace');
+  if(asciiTexCache[key]) return asciiTexCache[key];
+  const size = 1000;
+  const pad  = size * 0.08; // safety padding for tall glyphs
+  const oc = document.createElement('canvas');
+  oc.width = size; oc.height = size;
+  const c = oc.getContext('2d');
+  c.fillStyle = P.bg;
+  c.fillRect(0,0,size,size);
+  c.fillStyle = color;
+  // Scale font so the actual glyph bounding box fills the canvas
+  let fs = size * 0.75;
+  const fontStr = (b) => `${b?'900':'400'} ${fs}px ${P.asciiFont||'monospace'}`;
+  c.font = fontStr(bold);
+  let m = c.measureText(ch);
+  const glyphW = m.actualBoundingBoxLeft + m.actualBoundingBoxRight;
+  const glyphH = m.actualBoundingBoxAscent + m.actualBoundingBoxDescent;
+  const target = size - pad * 2;
+  if(glyphW > 0 && glyphH > 0){
+    const scaleW = target / glyphW;
+    const scaleH = target / glyphH;
+    fs *= Math.min(scaleW, scaleH);
+  } else if(m.width > 0){
+    fs = fs * (target / m.width);
+  }
+  c.font = fontStr(bold);
+  m = c.measureText(ch);
+  // Center using actual glyph metrics
+  const x = size/2 - (m.actualBoundingBoxRight - m.actualBoundingBoxLeft)/2 + m.actualBoundingBoxLeft;
+  const y = pad + m.actualBoundingBoxAscent;
+  c.fillText(ch, x, y);
+  asciiTexCache[key] = oc;
+  return oc;
+}
+
+function clearAsciiTexCache(){ asciiTexCache = {}; }
+
+// ─── ASCII DRAW ───────────────────────────────────────────────────────
+function drawASCII(W,H){
+  if(P.mode==='camera'){
+    if(!feedCameraToOff()) return;
+  } else if(P.mode==='video'){
+    if(!feedVideoToOff()) return;
+  } else if(P.mode==='image'){
+    if(!uploadedImg) return;
+  }
+
+  if(P.mode==='animation'){
+    // Use accordion stretch — same as word textures but with char textures
+    P.direction==='vertical' ? drawASCIIVert(W,H) : drawASCIIHor(W,H);
+  } else {
+    // Image / camera — map brightness to char, draw flat grid
+    const rows=P.rows;
+    const cols=Math.max(1,Math.round(W/H*rows));
+    const cellW=W/cols, cellH=H/rows;
+    const chars=P.asciiCharset||'@#S%?*+;:,. ';
+    const clen=chars.length;
+    ctx.textAlign='center';
+    ctx.fillStyle=P.asciiColor;
+    const fontSize=cellH*0.9;
+    ctx.font=`${P.asciiBold?'900':'400'} ${fontSize}px ${P.asciiFont||'monospace'}`;
+    // Compute vertical offset using actual glyph metrics of a reference char
+    const refM = ctx.measureText('M');
+    const glyphH = refM.actualBoundingBoxAscent + refM.actualBoundingBoxDescent;
+    const yOff = (cellH - glyphH) / 2 + refM.actualBoundingBoxAscent;
+    for(let r=0;r<rows;r++){
+      for(let c=0;c<cols;c++){
+        const nx=(c+0.5)/cols, ny=(r+0.5)/rows;
+        const norm=getASCIIBrightness(nx,ny);
+        const ch=chars[Math.min(clen-1,Math.floor(norm*clen))];
+        if(!ch||ch===' ') continue;
+        ctx.fillText(ch, c*cellW+cellW/2, r*cellH+yOff);
+      }
+    }
+  }
+}
+
+// Build ascii char textures from charset: map 4 "levels" to 4 chars spread across charset
+function getAsciiTextures(){
+  const chars = P.asciiCharset || '@#S%?*+;:,. ';
+  const clen = chars.length;
+  // pick 4 chars evenly spread (like S/M/L/XL levels)
+  const picks = [
+    chars[Math.floor(clen*0)],
+    chars[Math.floor(clen*0.33)],
+    chars[Math.floor(clen*0.66)],
+    chars[Math.min(clen-1, Math.floor(clen*0.99))],
+  ];
+  return picks.map(ch => getCharTex(ch||'·', P.asciiColor, P.asciiBold));
+}
+
+function drawASCIIVert(W,H){
+  const texs = getAsciiTextures();
+  const savedTextures = textures;
+  textures = texs;
+  drawVert(W,H);
+  textures = savedTextures;
+}
+
+function drawASCIIHor(W,H){
+  const texs = getAsciiTextures();
+  const savedTextures = textures;
+  textures = texs;
+  drawHor(W,H);
+  textures = savedTextures;
+}
+
+function getASCIIBrightness(nx,ny){
+  const px=Math.max(0,Math.min(offCv.width-1, Math.floor(nx*offCv.width)));
+  const py=Math.max(0,Math.min(offCv.height-1,Math.floor(ny*offCv.height)));
+  try{
+    const d=offCtx.getImageData(px,py,1,1).data;
+    const b=d[0]*0.299+d[1]*0.587+d[2]*0.114;
+    const mn=P.minLevel,mx=P.maxLevel;
+    return Math.max(0,Math.min(1,(b-mn)/Math.max(1,mx-mn)));
+  }catch{return 0;}
+}
+
+// ─── PIXEL MODE ───────────────────────────────────────────────────────
+function feedCameraToOff(){
+  if(!camReady||camVid.readyState<2) return false;
+  offCv.width=camVid.videoWidth||640;
+  offCv.height=camVid.videoHeight||480;
+  offCtx.save();
+  if(P.mirror){offCtx.translate(offCv.width,0);offCtx.scale(-1,1);}
+  offCtx.drawImage(camVid,0,0,offCv.width,offCv.height);
+  offCtx.restore();
+  return true;
+}
+
+function feedVideoToOff(){
+  if(!vidReady||srcVid.readyState<2) return false;
+  offCv.width=srcVid.videoWidth||640;
+  offCv.height=srcVid.videoHeight||480;
+  offCtx.drawImage(srcVid,0,0,offCv.width,offCv.height);
+  return true;
+}
+
+function drawPixelMode(W,H){
+  if(P.mode==='camera'){
+    if(!feedCameraToOff()) return;
+  } else if(P.mode==='video'){
+    if(!feedVideoToOff()) return;
+  } else if(P.mode==='image'){
+    if(!uploadedImg) return;
+  }
+
+  const rows=P.rows;
+  const cols=Math.max(1,Math.round(W/H*rows));
+  const cellW=W/cols, cellH=H/rows;
+
+  for(let r=0;r<rows;r++){
+    for(let c=0;c<cols;c++){
+      const nx=(c+0.5)/cols, ny=(r+0.5)/rows;
+      const idx=getTexIdx(nx,ny);
+      const tex=textures[Math.min(idx,textures.length-1)];
+      ctx.save();
+      ctx.beginPath(); ctx.rect(c*cellW,r*cellH,cellW,cellH); ctx.clip();
+      const sx=cellW/tex.width, sy=cellH/tex.height;
+      ctx.scale(sx,sy);
+      ctx.drawImage(tex,(c*cellW)/sx,(r*cellH)/sy);
+      ctx.restore();
+    }
+  }
+}
+
+// ─── ANIM VERTICAL ───────────────────────────────────────────────────
+function drawVert(W,H){
+  for(let j=0;j<P.cols;j++)
+    for(let i=0;i<P.rows;i++)
+      stretchVert(W,H,P.rows,P.cols,i,j+1,i*P.rowOffset+j*P.colOffset);
+}
+function stretchVert(W,H,divW,divH,oW,oH,tOff){
+  const px=W+W*oW;
+  const rawL=Math.abs((((P.time+tOff)/(animDur/2))%2)-1)*2.999;
+  const anim=easeInOut(rawL%1);
+  ctx.save(); ctx.scale(1/divW,1);
+  if(rawL<=1){svs(3,2,W,H,divW,divH,px,oH,anim);}
+  else if(rawL<=2){svs(2,1,W,H,divW,divH*2,px,oH*2,anim);svs(2,1,W,H,divW,divH*2,px,oH*2-1,anim);}
+  else{for(let k=0;k<4;k++)svs(1,0,W,H,divW,divH*4,px,oH*4-k,anim);}
+  ctx.restore();
+}
+function svs(i1,i2,W,H,divW,divH,px,py,f){
+  const t1=textures[i1%textures.length],t2=textures[i2%textures.length];
+  const oH=py-1,tsX=W/t1.width,tsY=H/t1.height;
+  const s1=(1-f)/divH,s2=(f/2)/divH;
+  const dx=(px-W/2)/tsX;
+  ctx.save();ctx.scale(1,s1);ctx.scale(tsX,tsY);
+  ctx.drawImage(t1,dx-t1.width/2,(H/s1/divH/2*(oH*2+1))/tsY-t1.height/2);
+  ctx.restore();
+  ctx.save();ctx.scale(1,s2);ctx.scale(tsX,tsY);
+  ctx.drawImage(t2,dx-t2.width/2,(H/s2/divH*oH+H/2)/tsY-t2.height/2);
+  ctx.drawImage(t2,dx-t2.width/2,(H/s2/divH*(oH+1)-H/2)/tsY-t2.height/2);
+  ctx.restore();
+}
+
+// ─── ANIM HORIZONTAL ─────────────────────────────────────────────────
+function drawHor(W,H){
+  for(let j=0;j<P.cols;j++)
+    for(let i=0;i<P.rows;i++)
+      stretchHor(W,H,P.cols,P.rows,j+1,i,i*P.rowOffset+j*P.colOffset);
+}
+function stretchHor(W,H,divW,divH,oW,oH,tOff){
+  const py=H*oH;
+  const rawL=Math.abs((((P.time+tOff)/(animDur/2))%2)-1)*2.999;
+  const anim=easeInOut(rawL%1);
+  ctx.save();ctx.scale(1,1/divH);
+  if(rawL<=1){shs(3,2,W,H,divW,divH,oW,py,anim);}
+  else if(rawL<=2){shs(2,1,W,H,divW*2,divH,oW*2,py,anim);shs(2,1,W,H,divW*2,divH,oW*2-1,py,anim);}
+  else{for(let k=0;k<4;k++)shs(1,0,W,H,divW*4,divH,oW*4-k,py,anim);}
+  ctx.restore();
+}
+function shs(i1,i2,W,H,divW,divH,px,py,f){
+  const t1=textures[i1%textures.length],t2=textures[i2%textures.length];
+  const oW=px-1,tsX=W/t1.width,tsY=H/t1.height;
+  const s1=(1-f)/divW,s2=(f/2)/divW;
+  const dy=(py+H/2)/tsY;
+  ctx.save();ctx.scale(s1,1);ctx.scale(tsX,tsY);
+  ctx.drawImage(t1,(W/divW/s1/2*(oW*2+1))/tsX-t1.width/2,dy-t1.height/2);
+  ctx.restore();
+  ctx.save();ctx.scale(s2,1);ctx.scale(tsX,tsY);
+  ctx.drawImage(t2,((W/divW/s2/2*(oW*2))+W/2)/tsX-t2.width/2,dy-t2.height/2);
+  ctx.drawImage(t2,((W/divW/s2/2*(oW*2+2))-W/2)/tsX-t2.width/2,dy-t2.height/2);
+  ctx.restore();
+}
+
+// ─── LOOP ─────────────────────────────────────────────────────────────
+// ─── AUDIO REACTIVE ───────────────────────────────────────────────────
+let audioCtx = null, analyser = null, audioStream = null;
+let audioActive = false;
+let audioSmoothVal = 0.65;
+let envL = 0, envM = 0, envH = 0;
+let audioEnergy = 0;    // single smoothed energy value 0..1
+let audioWaveMod = 5;
+let audioGain = 4; // mic pre-amplification   // how much audio multiplies wave speed (slider controlled)
+let audioBase = {};
+let audioCur = {};
+const AUDIO_LERP = 0.06;
+const AUDIO_THRESH = 0.015;
+function getAudioEnergy(){ return audioEnergy; }
+
+function toggleAudio(){
+  audioActive ? stopAudio() : startAudio();
+}
+
+async function startAudio(){
+  try {
+    audioStream = await navigator.mediaDevices.getUserMedia({audio:true, video:false});
+    audioCtx  = new (window.AudioContext||window.webkitAudioContext)();
+    analyser  = audioCtx.createAnalyser();
+    analyser.fftSize = 256;
+    analyser.smoothingTimeConstant = 0;
+    const src = audioCtx.createMediaStreamSource(audioStream);
+    const gain = audioCtx.createGain();
+    gain.gain.value = audioGain;
+    src.connect(gain);
+    gain.connect(analyser);
+    window._audioGainNode = gain;
+    audioActive = true;
+    // Capture current base values
+    audioBase = {
+      rows: P.rows, speed: P.speed, ease: P.ease,
+      rowOffset: P.rowOffset, colOffset: P.colOffset, cols: P.cols,
+      colors: [...P.colors], asciiColor: P.asciiColor,
+      maxLevel: P.maxLevel, minLevel: P.minLevel
+    };
+    document.getElementById('audioBtn').textContent = '⏹ Desactivar Mic';
+    document.getElementById('audioBtn').style.color = '#ff4444';
+    document.getElementById('audioStatus').textContent = '● mic activo';
+    document.getElementById('audioStatus').style.color = '#7dff7d';
+  } catch(e){
+    document.getElementById('audioStatus').textContent = 'Error: ' + e.message;
+    document.getElementById('audioStatus').style.color = '#ff6060';
+  }
+}
+
+function stopAudio(){
+  if(audioStream) audioStream.getTracks().forEach(t=>t.stop());
+  if(audioCtx) audioCtx.close();
+  audioCtx = null; analyser = null; audioStream = null;
+  audioActive = false;
+  envL = 0; envM = 0; envH = 0;
+  // Restore base values
+  applyAudioToParam('rows',      audioBase.rows      ?? P.rows,      1);
+  applyAudioToParam('speed',     audioBase.speed     ?? P.speed,     1);
+  applyAudioToParam('ease',      audioBase.ease      ?? P.ease,      1);
+  applyAudioToParam('rowOffset', audioBase.rowOffset ?? P.rowOffset, 1);
+  applyAudioToParam('colOffset', audioBase.colOffset ?? P.colOffset, 1);
+  applyAudioToParam('cols',      audioBase.cols      ?? P.cols,      1);
+  // Restore colors
+  if(audioBase.colors){ P.colors = [...audioBase.colors]; rebuildTextures(); buildColorRows(); }
+  if(audioBase.maxLevel !== undefined){
+    P.maxLevel = audioBase.maxLevel;
+    const sl = document.querySelector('input[oninput*="P.maxLevel"]');
+    if(sl){ sl.value = P.maxLevel; document.getElementById('maxv').textContent = P.maxLevel; }
+  }
+  if(audioBase.minLevel !== undefined){
+    P.minLevel = audioBase.minLevel;
+    const sl = document.querySelector('input[oninput*="P.minLevel"]');
+    if(sl){ sl.value = P.minLevel; document.getElementById('minv').textContent = P.minLevel; }
+  }
+  if(audioBase.asciiColor){
+    P.asciiColor = audioBase.asciiColor;
+    document.getElementById('asciiColorSw').style.background = P.asciiColor;
+    document.getElementById('asciiColorPick').value = P.asciiColor;
+    document.getElementById('asciiColorHex').textContent = P.asciiColor;
+    clearAsciiTexCache();
+  }
+  document.getElementById('audioBtn').textContent = '⏺ Activar Mic';
+  document.getElementById('audioBtn').style.color = '';
+  document.getElementById('audioStatus').textContent = '';
+}
+
+function tickAudio(){
+  if(!audioActive || !analyser) return;
+  const buf = new Uint8Array(analyser.frequencyBinCount);
+  analyser.getByteFrequencyData(buf);
+
+  // RMS
+  let sum=0;
+  for(let i=0;i<buf.length;i++) sum+=(buf[i]/255)*(buf[i]/255);
+  const rms = Math.sqrt(sum/buf.length);
+
+  // 3 bands
+  const n = buf.length;
+  const avg = (a,b)=>{ let s=0; for(let i=a;i<b;i++) s+=buf[i]/255; return s/(b-a); };
+  const rawL = avg(0, Math.floor(n*0.15));
+  const rawM = avg(Math.floor(n*0.15), Math.floor(n*0.5));
+  const rawH = avg(Math.floor(n*0.5), n);
+
+  // Smooth symmetrically — user slider controls both attack and release
+  const sm = audioSmoothVal;
+  audioEnergy = audioEnergy*sm + rms*(1-sm);
+  envL = envL*sm + rawL*(1-sm);
+  envM = envM*sm + rawM*(1-sm);
+  envH = envH*sm + rawH*(1-sm);
+
+  // Auto-normalize: track peak and scale so signal always uses full 0..1 range
+  const peakRaw = Math.max(rawL, rawM, rawH, rms);
+  if(!window._audioPeak) window._audioPeak = 0.01;
+  window._audioPeak = Math.max(window._audioPeak * 0.999, peakRaw); // slow decay
+  const norm = window._audioPeak > 0.01 ? 1 / window._audioPeak : 1;
+  // Apply normalization (capped at 20x to avoid blowup in silence)
+  const normCap = Math.min(norm, 20);
+  const nL = Math.min(envL * normCap, 1);
+  const nM = Math.min(envM * normCap, 1);
+  const nH = Math.min(envH * normCap, 1);
+  // Override env values with normalized ones for band assignments
+  envL = nL; envM = nM; envH = nH;
+  audioEnergy = Math.min(audioEnergy * normCap, 1);
+
+  // Visualizer
+  document.getElementById('vizL').style.height = Math.round(envL*18)+'px';
+  document.getElementById('vizL').style.background = envL>0.03?'#e8ff00':'#2a2a2a';
+  document.getElementById('vizM').style.height = Math.round(envM*18)+'px';
+  document.getElementById('vizM').style.background = envM>0.03?'#aaaaaa':'#2a2a2a';
+  document.getElementById('vizH').style.height = Math.round(envH*18)+'px';
+  document.getElementById('vizH').style.background = envH>0.03?'#555555':'#1a1a1a';
+
+  // Wave modulation: audio offsets rowOffset around its base value
+  if(audioWaveMod > 0){
+    const base = audioBase.rowOffset ?? P.rowOffset;
+    const target = base + audioEnergy * audioWaveMod * 40;
+    // Lerp P.rowOffset toward target — smooth continuous movement
+    P.rowOffset += (target - P.rowOffset) * 0.08;
+    P.rowOffset = Math.max(0, Math.min(100, P.rowOffset));
+    syncSlider('roSl','rov', Math.round(P.rowOffset));
+  }
+
+  // Band assignments
+  const amt = id => +document.getElementById(id).value;
+  applyBand('assignL', envL, amt('amtL'));
+  applyBand('assignM', envM, amt('amtM'));
+  applyBand('assignH', envH, amt('amtH'));
+}
+
+function applyBand(selectId, env, amount){
+  const param = document.getElementById(selectId).value;
+  if(param === 'none') return;
+  const base = audioBase[param] ?? 0;
+  if(param === 'color'){
+    // Only modulate if env is actually moving (above noise floor)
+    if(env < 0.02) return;
+    const shift = Math.round(env * amount * 180);
+    if(P.contentType === 'ascii'){
+      const baseColor = audioBase.asciiColor ?? '#ffffff';
+      const shifted = shiftHue(baseColor, shift);
+      P.asciiColor = shifted;
+      document.getElementById('asciiColorSw').style.background = shifted;
+      document.getElementById('asciiColorHex').textContent = shifted;
+      document.getElementById('asciiColorPick').value = shifted;
+      clearAsciiTexCache();
+    } else {
+      const baseColors = audioBase.colors ?? P.colors;
+      P.colors = baseColors.map(c => shiftHue(c, shift));
+      rebuildTextures(); buildColorRows();
+    }
+    return;
+  }
+  if(param === 'shuffle'){
+    const threshold = 0.15 / Math.max(amount, 0.1);
+    const now = Date.now();
+    if(env > threshold && (!audioCur.__shuffleTs || now - audioCur.__shuffleTs > 400)){
+      audioCur.__shuffleTs = now;
+      if(P.contentType === 'ascii') shuffleCharset();
+      else shuffleWords();
+    }
+    return;
+  }
+  // Map env (0..1) across the full range of each param, scaled by amount slider
+  // amount=1 → full range, amount=0 → stays at base
+  const mins  = { rows:1,   speed:0.05, ease:1, rowOffset:0,  colOffset:0,   cols:1, maxLevel:10,  minLevel:0   };
+  const maxes = { rows:120, speed:5,    ease:8, rowOffset:100, colOffset:800, cols:8, maxLevel:255, minLevel:200 };
+  const pMin = mins[param]  ?? 0;
+  const pMax = maxes[param] ?? 1;
+  // Interpolate between base and max, driven by env*amount
+  const drive = Math.min(env * amount * 2, 1); // *2 so amount=0.5 already reaches full range
+  const target = base + (pMax - base) * drive;
+  if(audioCur[param] === undefined) audioCur[param] = base;
+  // Fast lerp — responds quickly, no sticking
+  audioCur[param] += (target - audioCur[param]) * 0.25;
+  setAudioParam(param, Math.max(pMin, Math.min(pMax, audioCur[param])));
+}
+
+function computeAndLerp(selectId, env, amount){
+  const param = document.getElementById(selectId).value;
+  if(param === 'none') return;
+  const base = audioBase[param] ?? 0;
+
+  // Target value based on envelope
+  const ranges = { rows:80, speed:3, ease:6, rowOffset:80, colOffset:300, cols:5 };
+  const target = base + env * amount * (ranges[param] ?? 1);
+
+  // Initialize current if not set
+  if(audioCur[param] === undefined) audioCur[param] = base;
+
+  // Lerp current toward target
+  audioCur[param] += (target - audioCur[param]) * AUDIO_LERP;
+
+  // Apply smoothed value to P
+  setAudioParam(param, audioCur[param]);
+}
+
+function shiftHue(hex, deg){
+  let r=parseInt(hex.slice(1,3),16)/255;
+  let g=parseInt(hex.slice(3,5),16)/255;
+  let b=parseInt(hex.slice(5,7),16)/255;
+  const max=Math.max(r,g,b), min=Math.min(r,g,b), d=max-min;
+  let h=0, l=(max+min)/2;
+  // Force minimum saturation so white/grey/black actually shift color
+  let s = d>0 ? d/(1-Math.abs(2*l-1)) : 0;
+  if(s < 0.7) s = 0.7;
+  if(l < 0.3) l = 0.3;
+  if(l > 0.8) l = 0.8;
+  if(d>0){
+    if(max===r) h=((g-b)/d+6)%6;
+    else if(max===g) h=(b-r)/d+2;
+    else h=(r-g)/d+4;
+    h/=6;
+  }
+  h=(h+(deg/360)+1)%1;
+  const hue2rgb=(p,q,t)=>{ t=(t+1)%1; if(t<1/6) return p+(q-p)*6*t; if(t<1/2) return q; if(t<2/3) return p+(q-p)*(2/3-t)*6; return p; };
+  const q=l<0.5?l*(1+s):l+s-l*s, p=2*l-q;
+  r=hue2rgb(p,q,h+1/3); g=hue2rgb(p,q,h); b=hue2rgb(p,q,h-1/3);
+  return '#'+[r,g,b].map(x=>Math.round(x*255).toString(16).padStart(2,'0')).join('');
+}
+
+function setAudioParam(param, val){
+  if(param === 'maxLevel'){
+    P.maxLevel = Math.round(Math.max(1, Math.min(255, val)));
+    const sl = document.querySelector('input[oninput*="P.maxLevel"]');
+    if(sl){ sl.value = P.maxLevel; document.getElementById('maxv').textContent = P.maxLevel; }
+    return;
+  }
+  if(param === 'minLevel'){
+    P.minLevel = Math.round(Math.max(0, Math.min(254, val)));
+    const sl = document.querySelector('input[oninput*="P.minLevel"]');
+    if(sl){ sl.value = P.minLevel; document.getElementById('minv').textContent = P.minLevel; }
+    return;
+  }
+  switch(param){
+    case 'rows':
+      P.rows = Math.round(Math.max(1, Math.min(120, val)));
+      syncSlider('rowSl','rowv', P.rows); break;
+    case 'speed':
+      P.speed = +Math.max(0.05, Math.min(5, val)).toFixed(2);
+      const spSl = document.querySelector('input[oninput*="P.speed"]');
+      if(spSl){ spSl.value=P.speed; document.getElementById('spv').textContent=P.speed.toFixed(2); } break;
+    case 'ease':
+      P.ease = +Math.max(1, Math.min(8, val)).toFixed(1);
+      syncSlider('easeSl','easev', P.ease, 1); break;
+    case 'rowOffset':
+      P.rowOffset = Math.round(Math.max(0, Math.min(100, val)));
+      syncSlider('roSl','rov', P.rowOffset); break;
+    case 'colOffset':
+      P.colOffset = Math.round(Math.max(0, Math.min(800, val)));
+      syncSlider('coSl','cov', P.colOffset); break;
+    case 'cols':
+      P.cols = Math.round(Math.max(1, Math.min(8, val)));
+      syncSlider('colSl','colv', P.cols); break;
+  }
+}
+
+function applyAudioToParam(param, val){ setAudioParam(param, val); }
+
+function loop(ts){
+  const dt=ts-lastTs; lastTs=ts;
+  if((P.mode==='animation'||P.contentType==='ascii')&&playing&&!manualT){
+    P.time+=(dt/1000)*30*P.speed;
+    if(P.time>animDur) P.time-=animDur;
+    if(P.time<0) P.time+=animDur;
+    if(P.mode==='animation'){
+      document.getElementById('timeSl').value=P.time;
+      document.getElementById('tv').textContent=P.time.toFixed(1);
+    }
+  }
+  tickAudio();
+  tickPointer();
+  draw();
+  requestAnimationFrame(loop);
+}
+
+// ─── CONTROLS ────────────────────────────────────────────────────────
+document.getElementById('playBtn').onclick=()=>{
+  playing=!playing;
+  document.getElementById('playBtn').textContent=playing?'⏸':'▶';
+};
+function toggleSec(bId,hId){
+  const b=document.getElementById(bId),h=document.getElementById(hId);
+  const open=b.style.display!=='none';
+  b.style.display=open?'none':'';
+  h.classList.toggle('closed',open);
+}
+
+// ─── CONTENT TYPE ─────────────────────────────────────────────────────
+let charsetUIBuilt=false;
+function setContentType(type){
+  P.contentType=type;
+  document.getElementById('ctab-words').classList.toggle('on',type==='words');
+  document.getElementById('ctab-ascii').classList.toggle('on',type==='ascii');
+  document.getElementById('wordsPanel').style.display=type==='words'?'':'none';
+  document.getElementById('asciiPanel').style.display=type==='ascii'?'':'none';
+  document.getElementById('colorRows').style.display=type==='words'?'':'none';
+  document.getElementById('diffCk').parentElement.style.display=type==='words'?'':'none';
+  if(type==='ascii'&&!charsetUIBuilt){ buildCharsetUI(); charsetUIBuilt=true; }
+}
+
+document.getElementById('charsetSel') && (document.getElementById('charsetSel').onchange=function(){
+  P.asciiCharsetName=this.value;
+  P.asciiCharset=asciiCharsets[this.value];
+});
+
+// ─── CHARSET GRID UI ──────────────────────────────────────────────────
+let activeCat = 'ASCII';
+let activePresetIdx = 0;
+
+function buildCharsetUI(){
+  const cats=[...new Set(charCollections.map(c=>c.cat))];
+  const catTabs=document.getElementById('catTabs');
+  catTabs.innerHTML='';
+  cats.forEach(cat=>{
+    const btn=document.createElement('div');
+    btn.className='mode-tab'+(cat===activeCat?' on':'');
+    btn.style.cssText='font-size:8px;padding:3px 5px;flex:none;letter-spacing:1px';
+    btn.textContent=cat;
+    btn.onclick=()=>{ activeCat=cat; buildCharsetUI(); };
+    catTabs.appendChild(btn);
+  });
+
+  const grid=document.getElementById('presetGrid');
+  grid.innerHTML='';
+  charCollections.forEach((preset,idx)=>{
+    if(preset.cat!==activeCat) return;
+    const btn=document.createElement('div');
+    const isActive=idx===activePresetIdx;
+    btn.style.cssText=`
+      background:${isActive?'#1a1a00':'#000'};
+      border:1px solid ${isActive?'#e8ff00':'#1c1c1c'};
+      color:${isActive?'#e8ff00':'#666'};
+      font-size:9px;padding:5px 4px;cursor:pointer;
+      text-align:center;letter-spacing:1px;text-transform:uppercase;
+      transition:all .15s;line-height:1.3;
+    `;
+    const preview=preset.chars.slice(0,3);
+    btn.innerHTML=`<div style="font-size:13px;margin-bottom:2px">${preview}</div><div>${preset.name}</div>`;
+    btn.onmouseenter=()=>{ if(idx!==activePresetIdx) btn.style.borderColor='#333'; };
+    btn.onmouseleave=()=>{ if(idx!==activePresetIdx) btn.style.borderColor='#1c1c1c'; };
+    btn.onclick=()=>{
+      activePresetIdx=idx;
+      P.asciiCharset=preset.chars;
+      clearAsciiTexCache();
+      document.getElementById('charPreview').textContent=preset.chars;
+      buildCharsetUI();
+    };
+    grid.appendChild(btn);
+  });
+
+  const active=charCollections[activePresetIdx];
+  if(active) document.getElementById('charPreview').textContent=P.asciiCharset;
+}
+
+function shuffleCharset(){
+  const arr=[...P.asciiCharset];
+  for(let i=arr.length-1;i>0;i--){
+    const j=Math.floor(Math.random()*(i+1));
+    [arr[i],arr[j]]=[arr[j],arr[i]];
+  }
+  P.asciiCharset=arr.join('');
+  clearAsciiTexCache();
+  document.getElementById('charPreview').textContent=P.asciiCharset;
+}
+
+function resetCharset(){
+  const preset=charCollections[activePresetIdx];
+  if(preset){ P.asciiCharset=preset.chars; clearAsciiTexCache(); document.getElementById('charPreview').textContent=P.asciiCharset; }
+}
+
+// ─── COLOR ROWS ───────────────────────────────────────────────────────
+function buildColorRows(){
+  const cont=document.getElementById('colorRows');
+  cont.innerHTML='';
+  P.colors.forEach((clr,i)=>{
+    const id=`cp${i}`;
+    const row=document.createElement('div');
+    row.className='row';
+    row.innerHTML=`
+      <span class="lbl">${i+1}</span>
+      <div class="swatch" id="sw${i}" style="background:${clr}" onclick="document.getElementById('${id}').click()"></div>
+      <input type="color" id="${id}" value="${clr}" style="display:none"
+        oninput="P.colors[${i}]=this.value;document.getElementById('sw${i}').style.background=this.value;document.getElementById('hex${i}').textContent=this.value;textures[${i}]=buildTexture(P.words[${i}],this.value)">
+      <span class="hex" id="hex${i}">${clr}</span>`;
+    cont.appendChild(row);
+  });
+}
+
+// ─── WORD ROWS ────────────────────────────────────────────────────────
+function shuffleWords(){
+  // Shuffle words and colors together keeping pairs intact
+  const pairs = P.words.map((w,i) => ({w, c: P.colors[i]}));
+  for(let i=pairs.length-1;i>0;i--){
+    const j=Math.floor(Math.random()*(i+1));
+    [pairs[i],pairs[j]]=[pairs[j],pairs[i]];
+  }
+  P.words  = pairs.map(p=>p.w);
+  P.colors = pairs.map(p=>p.c);
+  rebuildTextures();
+  buildWordRows();
+  buildColorRows();
+}
+
+function buildWordRows(){
+  const cont=document.getElementById('wordRows');
+  cont.innerHTML='';
+  P.words.forEach((word,i)=>{
+    const row=document.createElement('div');
+    row.className='row';
+    row.innerHTML=`
+      <span class="lbl">${i+1}</span>
+      <input type="text" value="${word}" maxlength="8"
+        oninput="P.words[${i}]=this.value||'?';textures[${i}]=buildTexture(this.value||'?',P.colors[${i}])">`;
+    cont.appendChild(row);
+  });
+}
+
+// ─── RANDOM ───────────────────────────────────────────────────────────
+function applyRandom(){
+  P.direction=['vertical','horizontal'][Math.floor(Math.random()*2)];
+  document.getElementById('dirSel').value=P.direction;
+  const rr=(a,b)=>Math.round(a+Math.random()*(b-a));
+  const rf=(a,b,d=1)=>+(a+Math.random()*(b-a)).toFixed(d);
+  P.rows=rr(5,60);       document.getElementById('rowSl').value=P.rows;      document.getElementById('rowv').textContent=P.rows;
+  P.rowOffset=rr(0,80);  document.getElementById('roSl').value=P.rowOffset;   document.getElementById('rov').textContent=P.rowOffset;
+  P.cols=rr(1,6);        document.getElementById('colSl').value=P.cols;       document.getElementById('colv').textContent=P.cols;
+  P.colOffset=rr(0,400); document.getElementById('coSl').value=P.colOffset;   document.getElementById('cov').textContent=P.colOffset;
+  P.ease=rf(1,8);        document.getElementById('easeSl').value=P.ease;      document.getElementById('easev').textContent=P.ease.toFixed(1);
+}
+
+// ─── PRESETS ──────────────────────────────────────────────────────────
+function syncSlider(id, valId, val, decimals=0){
+  const el=document.getElementById(id); if(el) el.value=val;
+  const ve=document.getElementById(valId); if(ve) ve.textContent=decimals?val.toFixed(decimals):val;
+}
+function applyPreset(name){
+  const presets = {
+    soft:  { rowOffset:5,  colOffset:0,   ease:1.5, speed:0.2 },
+    mid:   { rowOffset:22, colOffset:40,  ease:4.0, speed:1.0 },
+    hard:  { rowOffset:60, colOffset:250, ease:7.5, speed:2.8 },
+    reset: { rowOffset:20, colOffset:0,   ease:1.7, speed:1.0 },
+  };
+  const s = presets[name]; if(!s) return;
+  P.rowOffset = s.rowOffset; syncSlider("roSl","rov",     s.rowOffset);
+  P.colOffset = s.colOffset; syncSlider("coSl","cov",     s.colOffset);
+  P.ease      = s.ease;      syncSlider("easeSl","easev", s.ease, 1);
+  P.speed     = s.speed;     syncSlider(null,"spv",       s.speed, 2);
+  const spSl = document.querySelector('input[oninput*="P.speed"]'); if(spSl) spSl.value=s.speed;
+}
+
+// ─── LIVE AUTOMATION (Video / Camera) ────────────────────────────────
+let liveHold    = 2;
+let livePlaying = false;
+let liveTimer   = null;
+
+function toggleLiveAuto(){
+  livePlaying ? stopLiveAuto() : startLiveAuto();
+}
+
+function startLiveAuto(){
+  if(P.mode !== 'video' && P.mode !== 'camera'){
+    document.getElementById('liveStatus').textContent = 'Cambiá el input a Video o Cam primero';
+    return;
+  }
+  livePlaying = true;
+  document.getElementById('livePlayBtn').textContent = '⏹ Stop Montage';
+  document.getElementById('livePlayBtn').style.color = '#ff4444';
+  runLiveStep();
+}
+
+function stopLiveAuto(){
+  livePlaying = false;
+  if(liveTimer){ clearTimeout(liveTimer); liveTimer = null; }
+  document.getElementById('livePlayBtn').textContent = '▶ Play Montage';
+  document.getElementById('livePlayBtn').style.color = '';
+  document.getElementById('liveStatus').textContent  = '';
+}
+
+function runLiveStep(){
+  if(!livePlaying) return;
+
+  document.getElementById('liveStatus').textContent = '▶ corriendo...';
+
+  // — exactly the same timing split as runSeqStep —
+  const halfHold = liveHold * 500;
+
+  seqTimer = setTimeout(()=>{
+    if(!livePlaying) return;
+
+    const isHard = P.speed >= 2.0;
+
+    if(P.contentType === 'ascii'){
+      if(isHard){
+        const cat = charCollections[activePresetIdx]?.cat || 'ASCII';
+        const catPresets = charCollections.map((p,i)=>({...p,i})).filter(p=>p.cat===cat);
+        const pick = catPresets[Math.floor(Math.random()*catPresets.length)];
+        if(pick){
+          activePresetIdx = pick.i;
+          P.asciiCharset  = pick.chars;
+          clearAsciiTexCache();
+          document.getElementById('charPreview').textContent = P.asciiCharset;
+          buildCharsetUI();
+        }
+        const randColor = '#'+Math.floor(Math.random()*0xffffff).toString(16).padStart(6,'0');
+        P.asciiColor = randColor;
+        document.getElementById('asciiColorSw').style.background = randColor;
+        document.getElementById('asciiColorPick').value          = randColor;
+        document.getElementById('asciiColorHex').textContent     = randColor;
+        clearAsciiTexCache();
+      } else {
+        shuffleCharset();
+      }
+    } else {
+      const rf=(a,b,d=1)=>+(a+Math.random()*(b-a)).toFixed(d);
+      const rr=(a,b)=>Math.round(a+Math.random()*(b-a));
+      // Detect intensity by speed
+      const isSoft = P.speed < 0.5;
+      const isMid  = P.speed >= 0.5 && P.speed < 2.0;
+      const isHardMode = P.speed >= 2.0;
+
+      if(isSoft){
+        // Soft: no toca rows, solo ease suave
+        P.ease = rf(Math.max(1, P.ease-0.5), Math.min(2.5, P.ease+0.5), 1);
+        syncSlider('easeSl','easev', P.ease, 1);
+      } else if(isMid){
+        // Mid: rows se mueve poco cerca de donde está (±5)
+        P.rows = Math.min(120, Math.max(1, rr(P.rows-5, P.rows+5)));
+        syncSlider('rowSl','rowv', P.rows);
+        P.ease = rf(Math.max(2, P.ease-1), Math.min(6, P.ease+1), 1);
+        syncSlider('easeSl','easev', P.ease, 1);
+      } else {
+        // Hard
+        if(P.contentType === 'ascii'){
+          // ASCII/símbolos: cicla entre grande (pocas filas), medio y chico (muchas filas)
+          const sizeZones = [
+            [2, 8],    // grande — símbolos bien visibles
+            [20, 35],  // medio
+            [60, 90],  // chico — textura densa
+          ];
+          const zone = sizeZones[Math.floor(Math.random() * sizeZones.length)];
+          P.rows = rr(...zone);
+          syncSlider('rowSl','rowv', P.rows);
+        } else {
+          // Video/cam: rows se mueve en rango medio-alto, letras no se ven
+          P.rows = rr(30, 70);
+          syncSlider('rowSl','rowv', P.rows);
+        }
+        P.rowOffset = Math.random() < 0.5 ? rr(0,10) : rr(70,100);
+        syncSlider('roSl','rov', P.rowOffset);
+        P.ease = rf(5, 8, 1);
+        syncSlider('easeSl','easev', P.ease, 1);
+        P.colors = P.colors.map(()=>'#'+Math.floor(Math.random()*0xffffff).toString(16).padStart(6,'0'));
+        rebuildTextures(); buildColorRows();
+      }
+    }
+
+    liveTimer = setTimeout(()=>{
+      if(!livePlaying) return;
+      runLiveStep();
+    }, halfHold);
+
+  }, halfHold);
+}
+
+// Si el usuario cambia de modo, parar la automatización
+(function patchSetMode(){
+  const orig = window.setMode;
+  window.setMode = function(m){
+    if(livePlaying && m !== 'video' && m !== 'camera') stopLiveAuto();
+    orig(m);
+  };
+})();
+
+// ─── IMAGE SEQUENCE ───────────────────────────────────────────────────
+let seqImages  = []; // array of {img, name}
+let seqHold    = 2;  // seconds per image
+let seqTrans   = 1;  // transition seconds (param randomize)
+let seqPlaying = false;
+let seqTimer   = null;
+let seqCurrent = 0;
+
+document.getElementById('seqFileIn').onchange = function(e){
+  const files = Array.from(e.target.files).slice(0, 10 - seqImages.length);
+  let loaded = 0;
+  files.forEach(file=>{
+    const img = new Image();
+    img.onload = ()=>{
+      seqImages.push({img, name: file.name});
+      loaded++;
+      if(loaded === files.length) buildSeqGrid();
+    };
+    img.src = URL.createObjectURL(file);
+  });
+  this.value=''; // reset so same file can be re-added
+};
+
+function buildSeqGrid(){
+  const grid = document.getElementById('seqDropGrid');
+  grid.innerHTML='';
+  seqImages.forEach((item,i)=>{
+    const cell = document.createElement('div');
+    cell.style.cssText=`position:relative;aspect-ratio:1;background:#111;border:1px solid ${i===seqCurrent?'#e8ff00':'#1a1a1a'};cursor:pointer;overflow:hidden`;
+    const thumb = document.createElement('canvas');
+    thumb.width=60; thumb.height=60; thumb.style.cssText='width:100%;height:100%;display:block;';
+    const tc=thumb.getContext('2d');
+    // draw cover-fit thumbnail
+    const ar=item.img.width/item.img.height;
+    let sw=60,sh=60,sx=0,sy=0;
+    if(ar>1){sh=60/ar;sy=(60-sh)/2;}else{sw=60*ar;sx=(60-sw)/2;}
+    tc.fillStyle='#111'; tc.fillRect(0,0,60,60);
+    tc.drawImage(item.img,sx,sy,sw,sh);
+    const del=document.createElement('div');
+    del.textContent='✕'; del.style.cssText='position:absolute;top:1px;right:3px;font-size:8px;color:#ff4444;cursor:pointer;line-height:1;display:none';
+    del.onclick=(e)=>{ e.stopPropagation(); seqImages.splice(i,1); if(seqCurrent>=seqImages.length) seqCurrent=0; buildSeqGrid(); };
+    cell.onmouseenter=()=>del.style.display='block';
+    cell.onmouseleave=()=>del.style.display='none';
+    cell.onclick=()=>{ seqCurrent=i; loadSeqFrame(i); buildSeqGrid(); };
+    cell.appendChild(thumb); cell.appendChild(del);
+    grid.appendChild(cell);
+  });
+  // Add slot if < 10
+  if(seqImages.length<10){
+    const add=document.createElement('div');
+    add.style.cssText='aspect-ratio:1;border:1px dashed #1a1a1a;display:flex;align-items:center;justify-content:center;font-size:14px;color:#2a2a2a;cursor:pointer';
+    add.textContent='+';
+    add.onclick=()=>document.getElementById('seqFileIn').click();
+    grid.appendChild(add);
+  }
+}
+
+function clearSeqImages(){
+  stopSeqPlay();
+  seqImages=[]; seqCurrent=0; buildSeqGrid();
+  document.getElementById('seqStatus').textContent='';
+}
+
+function loadSeqFrame(idx){
+  if(!seqImages[idx]) return;
+  const {img}=seqImages[idx];
+  uploadedImg=img;
+  offCv.width=img.width; offCv.height=img.height;
+  offCtx.drawImage(img,0,0);
+  // switch to image mode
+  if(P.mode!=='image') setMode('image');
+}
+
+function toggleSeqPlay(){
+  seqPlaying ? stopSeqPlay() : startSeqPlay();
+}
+
+function startSeqPlay(){
+  if(seqImages.length<2){
+    document.getElementById('seqStatus').textContent='Necesitás al menos 2 imágenes';
+    return;
+  }
+  seqPlaying=true;
+  document.getElementById('seqPlayBtn').textContent='⏹ Stop Montage';
+  document.getElementById('seqPlayBtn').style.color='#ff4444';
+  runSeqStep();
+}
+
+function stopSeqPlay(){
+  seqPlaying=false;
+  if(seqTimer){clearTimeout(seqTimer);seqTimer=null;}
+  document.getElementById('seqPlayBtn').textContent='▶ Play Montage';
+  document.getElementById('seqPlayBtn').style.color='';
+  document.getElementById('seqStatus').textContent='';
+}
+
+function runSeqStep(){
+  if(!seqPlaying) return;
+  loadSeqFrame(seqCurrent);
+  buildSeqGrid(); // highlight current
+
+  document.getElementById('seqStatus').textContent=
+    `▶ ${seqCurrent+1} / ${seqImages.length}  —  ${seqImages[seqCurrent].name}`;
+
+  // Mid-hold: randomize params slightly for variety (transition feel)
+  const halfHold = seqHold * 500;
+  seqTimer = setTimeout(()=>{
+    if(!seqPlaying) return;
+    const isHard = P.speed >= 2.0; // detect hard-ish state
+
+    if(P.contentType==='ascii'){
+      if(isHard){
+        // Pick a random preset within the current active category
+        const cat = charCollections[activePresetIdx]?.cat || 'ASCII';
+        const catPresets = charCollections.map((p,i)=>({...p,i})).filter(p=>p.cat===cat);
+        const pick = catPresets[Math.floor(Math.random()*catPresets.length)];
+        if(pick){
+          activePresetIdx = pick.i;
+          P.asciiCharset  = pick.chars;
+          clearAsciiTexCache();
+          document.getElementById('charPreview').textContent = P.asciiCharset;
+          buildCharsetUI();
+        }
+        // Also randomize ASCII color
+        const randColor = '#'+Math.floor(Math.random()*0xffffff).toString(16).padStart(6,'0');
+        P.asciiColor = randColor;
+        document.getElementById('asciiColorSw').style.background  = randColor;
+        document.getElementById('asciiColorPick').value            = randColor;
+        document.getElementById('asciiColorHex').textContent       = randColor;
+        clearAsciiTexCache();
+      } else {
+        // Soft/mid: just shuffle current charset
+        shuffleCharset();
+      }
+    } else {
+      // Image mode — vary rowOffset and ease
+      const rf=(a,b,d=1)=>+(a+Math.random()*(b-a)).toFixed(d);
+      const rr=(a,b)=>Math.round(a+Math.random()*(b-a));
+      P.rowOffset = rr(Math.max(0,P.rowOffset-15), Math.min(80,P.rowOffset+15));
+      P.ease      = rf(Math.max(1,P.ease-2), Math.min(8,P.ease+2),1);
+      syncSlider('roSl','rov',     P.rowOffset);
+      syncSlider('easeSl','easev', P.ease, 1);
+      if(isHard){
+        // Randomize word colors
+        P.colors = P.colors.map(()=>'#'+Math.floor(Math.random()*0xffffff).toString(16).padStart(6,'0'));
+        rebuildTextures();
+        buildColorRows();
+      }
+    }
+
+    seqTimer = setTimeout(()=>{
+      if(!seqPlaying) return;
+      seqCurrent = (seqCurrent+1) % seqImages.length;
+      runSeqStep();
+    }, halfHold);
+  }, halfHold);
+}
+
+// Init seq grid
+buildSeqGrid();
+
+// ─── OUTPUT WINDOW ────────────────────────────────────────────────────
+let outWin = null, outCanvas = null, outCtx2 = null, outReady = false;
+
+function openOutputWindow(){
+  if(outWin && !outWin.closed){ outWin.focus(); return; }
+
+  outReady = false; outCanvas = null; outCtx2 = null;
+  outWin = window.open('about:blank', '_blank',
+    'width=960,height=960,menubar=no,toolbar=no,location=no,status=no,scrollbars=no,resizable=yes');
+  if(!outWin){ alert('Permitir popups para este sitio.'); return; }
+
+  const html = `<!DOCTYPE html><html><head><meta charset="utf-8"><title>Output</title>
+  <style>*{margin:0;padding:0}html,body{background:#000;width:100%;height:100%;overflow:hidden;display:flex;align-items:center;justify-content:center}
+  canvas{max-width:100vw;max-height:100vh}</style></head>
+  <body><canvas id="c"></canvas></body></html>`;
+  outWin.document.open(); outWin.document.write(html); outWin.document.close();
+
+  // Poll until the canvas element exists inside the popup
+  const poll = setInterval(()=>{
+    try {
+      outCanvas = outWin.document.getElementById('c');
+      if(!outCanvas) return;
+      outCanvas.width  = cv.width;
+      outCanvas.height = cv.height;
+      outCtx2  = outCanvas.getContext('2d');
+      outReady = true;
+      clearInterval(poll);
+      document.getElementById('outBtn').style.color = '#e8ff00';
+    } catch(e){ clearInterval(poll); }
+  }, 50);
+
+  outWin.onbeforeunload = () => {
+    outReady = false; outCtx2 = null;
+    document.getElementById('outBtn').style.color = '';
+  };
+}
+
+// Called every frame after draw() — zero-copy mirror
+function mirrorOut(){
+  if(!outReady || !outCtx2) return;
+  try {
+    if(outCanvas.width !== cv.width || outCanvas.height !== cv.height){
+      outCanvas.width = cv.width; outCanvas.height = cv.height;
+    }
+    outCtx2.drawImage(cv, 0, 0);
+  } catch(e){ outReady = false; outCtx2 = null; }
+}
+// ─── POINTER (mouse / touch / lidar-as-pointer) ──────────────────────
+const PTR_RANGES = {
+  speed:[0.1,4], rows:[4,80], rowOffset:[0,60],
+  colOffset:[0,400], ease:[1,6], cols:[1,6],
+  minLevel:[0,200], maxLevel:[55,255]
+};
+const PTR_LABELS = {speed:'velocidad', rows:'filas', rowOffset:'offset filas', colOffset:'offset col.', ease:'easing', cols:'columnas', minLevel:'min', maxLevel:'max', color:'color', shuffle:'shuffle', time:'tiempo'};
+const ptr = { on:true, active:false, x:0.5, y:0.5, z:0, zSeen:false, mapZ:'none', k:0.15, mapX:'speed', mapY:'rowOffset', cur:{} };
+
+const ptrDot = document.createElement('div');
+ptrDot.style.cssText = 'position:fixed;left:0;top:0;width:24px;height:24px;margin:-12px 0 0 -12px;border:2px solid #e8ff00;border-radius:50%;box-shadow:0 0 0 1px #000,inset 0 0 0 1px #000;pointer-events:none;z-index:50;display:none';
+const ptrTag = document.createElement('div');
+ptrTag.style.cssText = 'position:fixed;left:0;top:0;font:10px monospace;color:#e8ff00;background:rgba(0,0,0,.7);padding:2px 5px;pointer-events:none;z-index:50;display:none;white-space:nowrap';
+document.body.appendChild(ptrDot); document.body.appendChild(ptrTag);
+let ptrHud = true;
+function ptrHudMove(e){
+  if(!ptrHud || !ptr.on){ ptrDot.style.display = ptrTag.style.display = 'none'; return; }
+  ptrDot.style.display = ptrTag.style.display = 'block';
+  ptrDot.style.transform = 'translate('+e.clientX+'px,'+e.clientY+'px)';
+  ptrTag.style.transform = 'translate('+(e.clientX+18)+'px,'+(e.clientY+14)+'px)';
+  ptrTag.textContent = 'x '+ptr.x.toFixed(2)+'  y '+ptr.y.toFixed(2)+(ptr.zSeen?'  z '+ptr.z.toFixed(2):'');
+}
+function ptrHudHide(){ ptrDot.style.display = ptrTag.style.display = 'none'; }
+function ptrAutoMap(){
+  if(ptr.manual) return;
+  const pixel = (P.mode==='camera' || P.mode==='video' || P.mode==='image');
+  ptr.mapX = pixel ? 'minLevel' : 'speed';
+  ptr.mapY = pixel ? 'rows'     : 'rowOffset';
+  const sx = document.getElementById('ptrX'), sy = document.getElementById('ptrY');
+  if(sx) sx.value = ptr.mapX;
+  if(sy) sy.value = ptr.mapY;
+  ptr.cur = {}; ptr.active = false;
+}
+function ptrEntry(){
+  // al entrar el puntero: tomar valores actuales para que no haya saltos
+  ptr.active = true;
+  ptr.cur = {};
+  [ptr.mapX, ptr.mapY, ptr.mapZ].forEach(p => { if(p in PTR_RANGES) ptr.cur[p] = P[p]; });
+  ptr.cur.time = P.time;
+  ptr.n0 = {x:ptr.x, y:ptr.y, z:ptr.z};
+  ptr.base = {colors:[...P.colors], ascii:P.asciiColor};
+  ptr.lastShift = 0;
+  ptr.lastStep = {x:Math.floor(ptr.x*10), y:Math.floor(ptr.y*10), z:Math.floor(ptr.z*10)};
+  ptr.shufTs = 0;
+}
+function ptrUpdate(e){
+  const r = cv.getBoundingClientRect();
+  if(!r.width || !r.height) return;
+  ptr.x = Math.max(0, Math.min(1, (e.clientX - r.left) / r.width));
+  ptr.y = Math.max(0, Math.min(1, 1 - (e.clientY - r.top) / r.height));
+  if(e.pointerType && e.pointerType !== 'mouse' && e.pressure > 0){
+    ptr.z = Math.max(0, Math.min(1, e.pressure)); ptr.zSeen = true;
+  }
+  if(!ptr.active) ptrEntry();
+  ptrHudMove(e);
+}
+const ptrWrap = document.getElementById('canvasWrap');
+ptrWrap.addEventListener('pointermove',  ptrUpdate);
+ptrWrap.addEventListener('pointerdown',  ptrUpdate);
+ptrWrap.addEventListener('wheel', e => {
+  e.preventDefault();
+  ptr.z = Math.max(0, Math.min(1, ptr.z - e.deltaY * 0.0015)); ptr.zSeen = true;
+  ptrUpdate(e);
+}, {passive:false});
+// Z desde afuera: window.sentioZ(0..1)  o  postMessage({type:'z', value:0..1})
+window.sentioZ = v => { ptr.z = Math.max(0, Math.min(1, +v || 0)); ptr.zSeen = true; };
+window.addEventListener('message', e => {
+  const d = e.data;
+  if(d && d.type === 'z' && isFinite(d.value)) window.sentioZ(d.value);
+});
+ptrWrap.addEventListener('pointerleave', () => { ptr.active = false; ptrHudHide(); });
+ptrWrap.addEventListener('pointercancel',() => { ptr.active = false; ptrHudHide(); });
+
+function ptrApplyColor(shift){
+  if(P.contentType === 'ascii'){
+    const c = shiftHue(ptr.base.ascii, shift);
+    P.asciiColor = c;
+    document.getElementById('asciiColorSw').style.background = c;
+    document.getElementById('asciiColorHex').textContent = c;
+    document.getElementById('asciiColorPick').value = c;
+    clearAsciiTexCache();
+  } else {
+    P.colors = ptr.base.colors.map(c => shiftHue(c, shift));
+    rebuildTextures(); buildColorRows();
+  }
+}
+
+function tickPointer(){
+  const st = document.getElementById('ptrStatus');
+  if(!ptr.on || !ptr.active){
+    if(st) st.textContent = ptr.on ? 'esperando puntero sobre el visual…' : 'puntero desactivado';
+    return;
+  }
+  const parts = [];
+  [['x', ptr.mapX], ['y', ptr.mapY], ['z', ptr.mapZ]].forEach(([ax, p]) => {
+    if(ax === 'z' && !ptr.zSeen) return;
+    const n = ptr[ax];
+    if(p in PTR_RANGES){
+      const rg = PTR_RANGES[p];
+      const target = rg[0] + (rg[1] - rg[0]) * n;
+      if(ptr.cur[p] === undefined) ptr.cur[p] = P[p];
+      ptr.cur[p] += (target - ptr.cur[p]) * ptr.k;
+      setAudioParam(p, ptr.cur[p]);
+      parts.push(PTR_LABELS[p] + ' ' + P[p]);
+    } else if(p === 'time'){
+      const target = n * animDur;
+      ptr.cur.time += (target - ptr.cur.time) * ptr.k;
+      P.time = ptr.cur.time;
+      const tsl = document.getElementById('timeSl'); if(tsl) tsl.value = P.time;
+      const tv = document.getElementById('tv'); if(tv) tv.textContent = P.time.toFixed(1);
+      parts.push('tiempo ' + P.time.toFixed(1));
+    } else if(p === 'color'){
+      const shift = Math.round((n - ptr.n0[ax]) * 360);
+      if(shift !== ptr.lastShift){ ptr.lastShift = shift; ptrApplyColor(shift); }
+      parts.push('color ' + shift + '°');
+    } else if(p === 'shuffle'){
+      const idx = Math.floor(n * 10);
+      if(idx !== ptr.lastStep[ax]){
+        ptr.lastStep[ax] = idx;
+        const now = Date.now();
+        if(now - ptr.shufTs > 250){
+          ptr.shufTs = now;
+          if(P.contentType === 'ascii') shuffleCharset(); else shuffleWords();
+        }
+      }
+      parts.push('shuffle');
+    }
+  });
+  if(ptr.zSeen && ptr.mapZ === 'none') parts.push('z ' + ptr.z.toFixed(2) + ' (sin asignar)');
+  if(st) st.textContent = parts.length ? '● ' + parts.join(' · ') : '';
+}
+function togglePtrHud(){
+  ptrHud = !ptrHud;
+  if(!ptrHud) ptrHudHide();
+  const b = document.getElementById('ptrHudBtn');
+  if(b){ b.textContent = ptrHud ? 'Punto sí' : 'Punto no'; b.classList.toggle('active', ptrHud); }
+}
+function togglePointer(){
+  ptr.on = !ptr.on;
+  if(!ptr.on) ptrHudHide();
+  const b = document.getElementById('ptrBtn');
+  b.textContent = ptr.on ? 'Puntero activo' : 'Puntero apagado';
+  b.classList.toggle('active', ptr.on);
+}
+function setPtrMap(){
+  ptr.manual = true;
+  ptr.mapX = document.getElementById('ptrX').value;
+  ptr.mapY = document.getElementById('ptrY').value;
+  ptr.mapZ = document.getElementById('ptrZ').value;
+  ptr.cur = {}; ptr.active = false;
+}
+document.addEventListener('keydown', e => {
+  const t = e.target, typing = t.isContentEditable || t.tagName === 'TEXTAREA' ||
+    (t.tagName === 'INPUT' && /^(text|search|number|url|email|password)$/i.test(t.type));
+  if(typing) return;
+  if(e.key === 'p' || e.key === 'P') togglePointer();
+  if(e.key === 'i' || e.key === 'I') togglePtrHud();
+});
+
+buildColorRows();
+buildWordRows();
+resize();
+requestAnimationFrame(ts=>{lastTs=ts;requestAnimationFrame(loop);});
+
+// Panel toggle: H key shows/hides the control panel
+function togglePanel(){
+  document.querySelector('aside').classList.toggle('visible');
+  resize();
+}
+document.addEventListener('keydown', e => {
+  if(e.key === 'h' || e.key === 'H') togglePanel();
+});
+
+// Botones en pantalla (para usar sin teclado, p. ej. con lidar)
+(function(){
+  const css = 'position:fixed;bottom:12px;width:34px;height:34px;border-radius:50%;border:1px solid #e8ff00;background:rgba(0,0,0,.55);color:#e8ff00;font-size:15px;line-height:1;cursor:pointer;z-index:60;opacity:.4;transition:opacity .15s;padding:0';
+  const mk = (left, label, title, fn) => {
+    const b = document.createElement('button');
+    b.textContent = label; b.title = title; b.style.cssText = css + ';left:' + left + 'px';
+    b.onmouseenter = () => b.style.opacity = 1;
+    b.onmouseleave = () => b.style.opacity = .4;
+    b.onclick = fn;
+    document.body.appendChild(b);
+  };
+  mk(12, '☰', 'Mostrar / ocultar panel', togglePanel);
+  mk(54, '⛶', 'Pantalla completa', () => {
+    if(document.fullscreenElement) document.exitFullscreen();
+    else document.documentElement.requestFullscreen && document.documentElement.requestFullscreen();
+  });
+})();
+</script>
+</body>
+</html>
