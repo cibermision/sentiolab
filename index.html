@@ -2,18 +2,19 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>SentioLab — typography as motion</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@700&family=DM+Serif+Display:ital@0;1&family=Syne:wght@800&family=Bebas+Neue&family=Fragment+Mono:ital@0;1&family=Instrument+Serif:ital@0;1&family=Unbounded:wght@900&family=Fraunces:ital,wght@1,900&family=Space+Mono:wght@700&family=Playfair+Display:ital,wght@0,900;1,900&family=Cormorant+Garamond:ital,wght@0,700;1,700&family=Bodoni+Moda:ital,opsz,wght@0,6..96,900;1,6..96,900&family=Oswald:wght@700&family=Cinzel:wght@900&family=Big+Shoulders+Display:wght@900&family=Josefin+Sans:ital,wght@0,700;1,700&family=Raleway:ital,wght@0,900;1,900&family=Eater&family=Metal+Mania&family=Nosifer&family=Pirata+One&family=New+Rocker&family=Pirata+One&family=Metal+Mania&family=Rozha+One&family=Yeseva+One&family=Vidaloka&family=Rufina:wght@700&family=Libre+Bodoni:ital,wght@0,700;1,700&family=Abril+Fatface&family=MedievalSharp&family=UnifrakturMaguntia&family=Germania+One&family=Almendra+Display&family=Grenze+Gotisch:wght@900&family=Barlow+Condensed:wght@900&family=Righteous&family=Cormorant+Infant:ital,wght@0,700;1,700&family=Poiret+One&family=Creepster&family=Sora:wght@700&family=JetBrains+Mono:wght@700&family=Cutive+Mono&family=Special+Elite&family=Rubik+Glitch&family=Press+Start+2P&family=IBM+Plex+Mono:wght@400;700&family=IBM+Plex+Sans:wght@700&family=IBM+Plex+Serif:wght@700&family=Share+Tech+Mono&family=VT323&family=Courier+Prime:wght@700&display=swap" rel="stylesheet">
 <style>
   *{margin:0;padding:0;box-sizing:border-box}
-  body{display:flex;height:100vh;background:#000;overflow:hidden;font-family:'Helvetica Neue',Helvetica,Arial,sans-serif}
+  body{display:flex;height:100vh;height:100dvh;background:#000;overflow:hidden;font-family:'Helvetica Neue',Helvetica,Arial,sans-serif}
   #canvasWrap{flex:1;display:flex;align-items:center;justify-content:center;overflow:hidden;background:#000;position:relative}
   canvas{display:block}
   #canvasWrap{touch-action:none}
   video#camVid{display:none}
-  aside{width:240px;min-width:240px;background:#0c0c0c;border-left:1px solid #1c1c1c;display:none;flex-direction:column;font-size:11px;position:relative;z-index:10;height:100vh;overflow:hidden}
+  aside{width:240px;min-width:240px;background:#0c0c0c;border-left:1px solid #1c1c1c;display:none;flex-direction:column;font-size:11px;position:relative;z-index:10;height:100vh;height:100dvh;overflow:hidden}
   aside.visible{display:flex}
   .title-bar{padding:12px 13px 11px;border-bottom:1px solid #1c1c1c;display:flex;justify-content:space-between;align-items:center;flex-shrink:0}
   .title-bar .logo{font-size:10px;letter-spacing:3.5px;color:#e8ff00;text-transform:uppercase;font-weight:600}
@@ -56,6 +57,38 @@
   .drop-zone:hover,.drop-zone.over{border-color:#e8ff00;color:#e8ff00}
   .drop-zone.has-img{border-style:solid;border-color:#444;color:#888}
   .sep{height:1px;background:#1a1a1a;margin:6px 0}
+  /* ── Fabs (☰ ⛶) ── */
+  .fab{bottom:12px}
+  .sheet-grip{display:none}
+
+  /* ── Pantallas táctiles: controles más cómodos ── */
+  @media (pointer:coarse){
+    input[type=range]{height:4px}
+    input[type=range]::-webkit-slider-thumb{width:22px;height:22px}
+    input[type=checkbox]{width:20px;height:20px}
+    .row{min-height:34px;margin-bottom:10px}
+    .sec-head{padding:13px 13px}
+    .mode-tab{padding:9px 0}
+    .action-btn{padding:10px 0}
+    .swatch{height:26px}
+    select,input[type=text]{font-size:16px;padding:6px 7px}
+    .lbl{font-size:11px}
+    .play-btn{width:32px;height:32px}
+  }
+
+  /* ── Celular vertical: el panel pasa a ser un bottom sheet ──
+     El canvas ocupa el espacio que queda arriba del panel (nunca queda tapado)
+     y el panel se arrastra entre 3 alturas: solo barra / medio / alto. */
+  @media (orientation:portrait) and (max-width:900px){
+    body{flex-direction:column}
+    #canvasWrap{flex:1 1 0;min-height:0;width:100%}
+    aside{width:100%;min-width:0;height:auto;flex-shrink:0;border-left:none;border-top:1px solid #2a2a2a;box-shadow:0 -10px 30px rgba(0,0,0,.65);font-size:12px}
+    .sheet-grip{display:flex;justify-content:center;align-items:center;height:20px;flex-shrink:0;touch-action:none;cursor:grab;background:#0c0c0c}
+    .sheet-grip::before{content:'';width:40px;height:3px;border-radius:2px;background:#e8ff00;opacity:.6}
+    .title-bar{touch-action:none;padding-top:2px}
+    #panelScroll{overscroll-behavior:contain;-webkit-overflow-scrolling:touch;padding-bottom:env(safe-area-inset-bottom,0px)}
+    .fab{bottom:auto !important;top:calc(10px + env(safe-area-inset-top,0px)) !important;width:40px !important;height:40px !important;font-size:17px !important;opacity:.55 !important}
+  }
 </style>
 </head>
 <body>
@@ -68,6 +101,7 @@
 <video id="srcVid" style="display:none" playsinline muted loop></video>
 
 <aside>
+  <div class="sheet-grip" title="Arrastrar para subir / bajar el panel"></div>
   <div class="title-bar">
     <span class="logo">SentioLab</span>
     <button class="play-btn" id="outBtn" title="Output Window" onclick="openOutputWindow()" style="font-size:13px">⎋</button>
@@ -1140,6 +1174,8 @@ function fitCanvas(){
   cv.style.width=(P.W*s)+'px'; cv.style.height=(P.H*s)+'px';
 }
 window.addEventListener('resize',fitCanvas);
+// refit también cuando cambia el espacio disponible (p. ej. al mover el bottom sheet)
+if(window.ResizeObserver) new ResizeObserver(fitCanvas).observe(document.getElementById('canvasWrap'));
 
 // ─── CAMERA ──────────────────────────────────────────────────────────
 const camVid=document.getElementById('camVid');
@@ -2554,6 +2590,7 @@ requestAnimationFrame(ts=>{lastTs=ts;requestAnimationFrame(loop);});
 // Panel toggle: H key shows/hides the control panel
 function togglePanel(){
   document.querySelector('aside').classList.toggle('visible');
+  if(window.sheetSync) sheetSync();
   resize();
 }
 document.addEventListener('keydown', e => {
@@ -2562,12 +2599,12 @@ document.addEventListener('keydown', e => {
 
 // Botones en pantalla (para usar sin teclado, p. ej. con lidar)
 (function(){
-  const css = 'position:fixed;bottom:12px;width:34px;height:34px;border-radius:50%;border:1px solid #e8ff00;background:rgba(0,0,0,.55);color:#e8ff00;font-size:15px;line-height:1;cursor:pointer;z-index:60;opacity:.4;transition:opacity .15s;padding:0';
+  const css = 'position:fixed;width:34px;height:34px;border-radius:50%;border:1px solid #e8ff00;background:rgba(0,0,0,.55);color:#e8ff00;font-size:15px;line-height:1;cursor:pointer;z-index:60;opacity:.4;transition:opacity .15s;padding:0';
   const mk = (left, label, title, fn) => {
     const b = document.createElement('button');
-    b.textContent = label; b.title = title; b.style.cssText = css + ';left:' + left + 'px';
+    b.className = 'fab'; b.textContent = label; b.title = title; b.style.cssText = css + ';left:' + left + 'px';
     b.onmouseenter = () => b.style.opacity = 1;
-    b.onmouseleave = () => b.style.opacity = .4;
+    b.onmouseleave = () => b.style.opacity = '';
     b.onclick = fn;
     document.body.appendChild(b);
   };
@@ -2576,6 +2613,69 @@ document.addEventListener('keydown', e => {
     if(document.fullscreenElement) document.exitFullscreen();
     else document.documentElement.requestFullscreen && document.documentElement.requestFullscreen();
   });
+})();
+// Bottom sheet del panel (celular vertical): arrastrable, 3 alturas con snap.
+// La altura "medio" se calcula para que el canvas siga a todo el ancho de la pantalla.
+(function(){
+  const aside = document.querySelector('aside');
+  const grip  = aside.querySelector('.sheet-grip');
+  const bar   = aside.querySelector('.title-bar');
+  const mq = window.matchMedia('(orientation:portrait) and (max-width:900px)');
+  let idx = 1, curH = 0, drag = null;
+
+  function snaps(){
+    const vh = window.innerHeight, vw = window.innerWidth;
+    const min = grip.offsetHeight + bar.offsetHeight;          // solo barra
+    const canvasH = vw * P.H / P.W;                            // alto del canvas a ancho completo
+    const mid = Math.round(Math.max(vh*.30, Math.min(vh*.55, vh - canvasH)));
+    const max = Math.round(vh*.82);
+    return [min, Math.max(mid, min + 80), Math.max(max, mid + 60)];
+  }
+  function setH(px, anim){
+    aside.style.transition = anim ? 'height .28s cubic-bezier(.2,.8,.2,1)' : 'none';
+    aside.style.height = px + 'px';
+    curH = px;
+  }
+  function sync(){
+    if(!mq.matches){ aside.style.height = ''; aside.style.transition = ''; return; }
+    if(!aside.classList.contains('visible')) return;
+    setH(snaps()[idx], false);
+  }
+  window.sheetSync = sync;
+  if(mq.addEventListener) mq.addEventListener('change', sync); else mq.addListener(sync);
+  window.addEventListener('resize', () => { if(!drag) sync(); });
+
+  aside.addEventListener('pointerdown', e => {
+    if(!mq.matches) return;
+    if(!e.target.closest('.sheet-grip, .title-bar') || e.target.closest('button')) return;
+    const now = performance.now();
+    drag = {id:e.pointerId, y:e.clientY, h:curH, lastY:e.clientY, lastT:now, v:0, moved:false, s:snaps()};
+    aside.setPointerCapture(e.pointerId);
+    aside.style.transition = 'none';
+  });
+  aside.addEventListener('pointermove', e => {
+    if(!drag || e.pointerId !== drag.id) return;
+    const dy = drag.y - e.clientY;
+    if(Math.abs(dy) > 4) drag.moved = true;
+    if(!drag.moved) return;
+    const now = performance.now(), dt = Math.max(1, now - drag.lastT);
+    drag.v = .7*drag.v + .3*((drag.lastY - e.clientY) / dt);   // px/ms, + = sube
+    drag.lastY = e.clientY; drag.lastT = now;
+    setH(Math.max(drag.s[0], Math.min(drag.s[2], drag.h + dy)), false);
+  });
+  function end(e){
+    if(!drag || e.pointerId !== drag.id) return;
+    const d = drag; drag = null;
+    if(!d.moved){
+      idx = (idx === 1) ? 0 : 1;                                // tap: cerrar / abrir a medio
+    } else {
+      const proj = curH + d.v * 160;                            // proyecta el envión
+      idx = d.s.reduce((b, s, i) => Math.abs(s - proj) < Math.abs(d.s[b] - proj) ? i : b, 0);
+    }
+    setH(snaps()[idx], true);
+  }
+  aside.addEventListener('pointerup', end);
+  aside.addEventListener('pointercancel', end);
 })();
 </script>
 </body>
